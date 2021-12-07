@@ -1,0 +1,19 @@
+base/*.vol
+base/**/*.vol
+base/missions
+base/scripts/code.lasthope.cs
+Plugins
+*.exe
+*.dll
+*.log
+base/dynlogoF.smk
+zadmin.activemode.cs
+Temp/serverTempData.cs
+t1_timestamp_patch.txt
+t1_timestamp_patch.h
+t1_timestamp_patch.cs
+t1_timestamp_patch.c
+Sierra.inf
+missionlighting.cs
+InfiniteSpawn - Shortcut.lnk
+base/Score.gui
