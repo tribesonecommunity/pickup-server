@@ -10,7 +10,7 @@ $Game::LT::MidAirBeep = "~whit.wav";
 
 
 $zadmin::version = "0.935";
-$zadmin::state = "Modified + LT Stripped v1.2";
+$zadmin::state = "LT Stripped v1.5 + Anti-Scum";
 
 $ModInfo = "zadmin <f2>v"@$zadmin::version@"<f1>/<f2>"@$zadmin::state;
 
@@ -82,17 +82,13 @@ exec("code.missionList.cs");
 // Load prefs and execute any autoexec commands...
 exec("pref.serverdefaults.cs");
 exec("serverprefs.cs");
-
 exec("code.server.cs");
 exec("code.game.cs");
 exec("code.observer.cs");
 exec("code.player.cs");
-
-createServer($HostMission, True);
 exec("autoexec.cs");
 exec("code.lasthope.cs");
 exec("code.balancedmode.cs");
-exec("code.antiscum.cs");
 exec("freeze.cs");
 exec("code.overtime.cs");
 exec("code.notifications.cs");
@@ -100,5 +96,9 @@ exec("code.midair.cs");
 exec("code.midair.disc.cs");
 exec("code.midair.nadejump.cs");
 exec("code.smurfscanner.cs");
+exec("code.antiscum.cs");
+
+createServer($HostMission, True);
 translateMasters();
+
 echo("Dedicated Server Initialized");
