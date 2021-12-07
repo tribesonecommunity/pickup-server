@@ -2,6 +2,7 @@ base/*.vol
 base/**/*.vol
 base/missions
 base/scripts/code.lasthope.cs
+config/zadmin.passwords.cs
 Plugins
 *.exe
 *.dll
