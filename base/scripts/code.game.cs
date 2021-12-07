@@ -184,6 +184,7 @@ function Game::startMatch()
 	$FlagIsDropped[0] = 0;
 	$FlagIsDropped[1] = 0;
 	$NoFlagThrow = false;
+	$curTimeAdjust = false;
 	
 	if($Server::BalancedMode && $Server::Half == 1) {
 	    messageAll(1, "First half has started. Good luck! ~wmine_act.wav");
@@ -237,6 +238,7 @@ function Game::startHalf()
 	$FFATourney = true;
 	$matchStarted = true;
 	$TwoMinWarning = false;
+	$curTimeAdjust = false;
 	
 	$FlagIsDropped[0] = 0;
 	$FlagIsDropped[1] = 0;
@@ -268,6 +270,7 @@ function Game::startHalf()
   }
   
   Game::UpdateClientScores();
+  
   zadmin::AFKDaemon();
 }
 
@@ -671,10 +674,9 @@ function Game::assignClientTeam(%playerId)
 
 function Client::onKilled(%playerId, %killerId, %damageType)
 {
-	
+
 	if($NoFlagThrow) { return; }
-	
-	
+
 	echo("GAME: kill "@%killerId@" "@%playerId@" " @ %damageType);
 
 	%playerId.guiLock = true;
