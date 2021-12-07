@@ -443,6 +443,7 @@ function Server::finishMissionLoad()
 	$CountdownStarted = false;
 	$SuicideTimeChecker = 0;
 	$TwoMinWarning = false;
+	$curTimeAdjust = false;
 	
 	$FFATourney = true;
 	$Game::LT::Overtime = false;
