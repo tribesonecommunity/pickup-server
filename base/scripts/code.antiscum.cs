@@ -47,13 +47,15 @@ function AntiScum::NotifyTimeLeft(%cl, %timeLeft, %force) {
     if (%timeLeft < 0) {
       %timeLeft = 0;
     }
-    Client::sendMessage(%cl, 1, "You have " @ %timeLeft @ " seconds to bring the flag home.~wshell_click.wav");
+    Client::sendMessage(%cl, 1, "You have " @ %timeLeft @ " seconds to bring the flag home.");
     return;
   }
 
   if (%timeLeft > 5) {
-    if (%timeLeft == 30 || %timeLeft == 15 || %timeLeft == 10) {
-      Client::sendMessage(%cl, 1, "You have " @ %timeLeft @ " seconds to bring the flag home.~wshell_click.wav");
+    if (%timeLeft == 30 || %timeLeft == 15) {
+      Client::sendMessage(%cl, 1, "You have " @ %timeLeft @ " seconds to bring the flag home.");
+    } else if (%timeLeft == 30 || %timeLeft == 15 || %timeLeft == 10) {
+      Client::sendMessage(%cl, 1, "You have " @ %timeLeft @ " seconds to bring the flag home.");
     }
   } else if (%timeLeft == 5) {
     Client::sendMessage(%cl, 1, "You have " @ %timeLeft @ " seconds to bring the flag home.~wError_Message.wav");
@@ -305,14 +307,14 @@ function AntiScum::onDamage(%this, %type, %value, %pos, %vec, %mom, %vertPos, %q
     return;
   }
 
-	//damage from impact etc.
-	if (%type == 0) {
-		return;
+    //damage from impact etc.
+    if (%type == 0) {
+        return;
   }
 
-	%shooterClient = %object;
+    %shooterClient = %object;
   %shooterTeam = Client::getTeam(%shooterClient);
-	%damagedClient = Player::getClient(%this);
+    %damagedClient = Player::getClient(%this);
   %damagedTeam = Client::getTeam(%damagedClient);
 
   // Early return if shooter isn't flag carrier
@@ -340,7 +342,7 @@ function AntiScum::onDamage(%this, %type, %value, %pos, %vec, %mom, %vertPos, %q
 
 // If player was damaged or killed by flag carrier, reset flag carrier's timer
 // If flag carrier died, reset flag carrier's timer
-function Client::onKilled(%playerId, %killerId, %damageType) {
+function AntiScum::onKilled(%playerId, %killerId, %damageType) {
   if (!$AntiScum::ENABLED) {
     return;
   }
