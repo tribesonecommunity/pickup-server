@@ -47,15 +47,13 @@ function AntiScum::NotifyTimeLeft(%cl, %timeLeft, %force) {
     if (%timeLeft < 0) {
       %timeLeft = 0;
     }
-    Client::sendMessage(%cl, 1, "You have " @ %timeLeft @ " seconds to bring the flag home.");
+    Client::sendMessage(%cl, 1, "You have " @ %timeLeft @ " seconds to bring the flag home.~wshell_click.wav");
     return;
   }
 
   if (%timeLeft > 5) {
-    if (%timeLeft == 30 || %timeLeft == 15) {
-      Client::sendMessage(%cl, 1, "You have " @ %timeLeft @ " seconds to bring the flag home.");
-    } else if (%timeLeft == 30 || %timeLeft == 15 || %timeLeft == 10) {
-      Client::sendMessage(%cl, 1, "You have " @ %timeLeft @ " seconds to bring the flag home.");
+    if (%timeLeft == 30 || %timeLeft == 15 || %timeLeft == 10) {
+      Client::sendMessage(%cl, 1, "You have " @ %timeLeft @ " seconds to bring the flag home.~wshell_click.wav");
     }
   } else if (%timeLeft == 5) {
     Client::sendMessage(%cl, 1, "You have " @ %timeLeft @ " seconds to bring the flag home.~wError_Message.wav");
