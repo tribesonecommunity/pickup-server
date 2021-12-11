@@ -139,10 +139,15 @@ function Notifications::DisplayVotes(%votesFor, %votesAgainst, %totalVotes, %vot
 
 function Notifications::CountDown()
 {
-	//%curTimeLeft = floor(($Server::timeLimit * 60) + floor($missionStartTime) - floor(getSimTime()));
-	//MessageAll(0, "CUR TIME LEFT: " @ $Notifications::curTimeLeft);
-	//%curTimeLeft = ($Server::timeLimit * 60) + floor($missionStartTime) - floor(getSimTime());
-	if(Game::IsTie() && $Game::LT::OvertimeEnabled) $ae = "[ Overtime Enabled ]";
+    
+    // if we are in a countdown to begin the next half, cancel this countdown
+    if($Server::Halftime)
+        return;
+    
+    //%curTimeLeft = floor(($Server::timeLimit * 60) + floor($missionStartTime) - floor(getSimTime()));
+    //MessageAll(0, "CUR TIME LEFT: " @ $Notifications::curTimeLeft);
+    //%curTimeLeft = ($Server::timeLimit * 60) + floor($missionStartTime) - floor(getSimTime());
+    if(Game::IsTie() && $Game::LT::OvertimeEnabled) $ae = "[ Overtime Enabled ]";
 
         if ($Server::Half == 1) {
             $halfType = "First half";
@@ -155,57 +160,57 @@ function Notifications::CountDown()
          else {
             $halfType = "Match";
          }
-	
-	if (($Notifications::curTimeLeft <= 179) && ($Notifications::curTimeLeft >= 120) && (!$curTimeAdjust)) {
-		
-		//2 minute warning
-		$curTimeAdjust = true;
-		schedule(' MessageAll(1, $halfType @ " ends in 2 minutes. [PAUSE DISABLED]~wmine_act.wav"); ', ($Notifications::curTimeLeft - 120));
+    
+    if (($Notifications::curTimeLeft <= 179) && ($Notifications::curTimeLeft >= 120) && (!$curTimeAdjust)) {
+        
+        //2 minute warning
+        $curTimeAdjust = true;
+        schedule(' MessageAll(1, $halfType @ " ends in 2 minutes. [PAUSE DISABLED]~wmine_act.wav"); ', ($Notifications::curTimeLeft - 120));
 
-	}
-	
-	if ($Notifications::curTimeLeft == 60) {
-		//1 minute warning
-		MessageAll(1, $halfType @ " ends in 1 minute. " @ $ae @ "~wmine_act.wav");
-		
-	}
-	else if ($Notifications::curTimeLeft == 40) {
-		
-		//30 second warning
-		schedule(' MessageAll(1, $halfType @ " ends in 30 seconds. " @ $ae @ "~wmine_act.wav"); ', 10);
-		
-	}
-	else if($Notifications::curTimeLeft == 20) {
+    }
+    
+    if ($Notifications::curTimeLeft == 60) {
+        //1 minute warning
+        MessageAll(1, $halfType @ " ends in 1 minute. " @ $ae @ "~wmine_act.wav");
+        
+    }
+    else if ($Notifications::curTimeLeft == 40) {
+        
+        //30 second warning
+        schedule(' MessageAll(1, $halfType @ " ends in 30 seconds. " @ $ae @ "~wmine_act.wav"); ', 10);
+        
+    }
+    else if($Notifications::curTimeLeft == 20) {
 
-	  //15 second warning
-	  schedule(' MessageAll(1, $halfType @ " ends in 15 seconds. " @ $ae @ "~wmine_act.wav"); ', 5);
-	  
-	  //global curTimeLeft is assumed by this function now until the end
-	  $Notifications::curTimeLeft = 10;
-	  schedule("Notifications::CountDown();", 10);
-	  
-	}
-	else if(($Notifications::curTimeLeft <= 10) && ($Notifications::curTimeLeft > 0)) {
-		if($Notifications::curTimeLeft == 10) {
-		
-			MessageAll(1, $halfType @ " ends in 10 seconds. " @ $ae);
-		}
-		
-		if($Notifications::curTimeLeft == 5) {
-		
-			MessageAll(1, $halfType @ " ends in 5 seconds. " @ $ae);
-		}
+      //15 second warning
+      schedule(' MessageAll(1, $halfType @ " ends in 15 seconds. " @ $ae @ "~wmine_act.wav"); ', 5);
+      
+      //global curTimeLeft is assumed by this function now until the end
+      $Notifications::curTimeLeft = 10;
+      schedule("Notifications::CountDown();", 10);
+      
+    }
+    else if(($Notifications::curTimeLeft <= 10) && ($Notifications::curTimeLeft > 0)) {
+        if($Notifications::curTimeLeft == 10) {
+        
+            MessageAll(1, $halfType @ " ends in 10 seconds. " @ $ae);
+        }
+        
+        if($Notifications::curTimeLeft == 5) {
+        
+            MessageAll(1, $halfType @ " ends in 5 seconds. " @ $ae);
+        }
 
-		if($Notifications::curTimeLeft % 2 == 0) {
-		
-			MessageAll(0, "~wbutton5.wav");
-		}
-		else {
-		
-			MessageAll(0, "~wbutton4.wav");
-		}
-		
-	$Notifications::curTimeLeft--;
+        if($Notifications::curTimeLeft % 2 == 0) {
+        
+            MessageAll(0, "~wbutton5.wav");
+        }
+        else {
+        
+            MessageAll(0, "~wbutton4.wav");
+        }
+        
+    $Notifications::curTimeLeft--;
     schedule("Notifications::CountDown();", 1);
   }
   else { }
