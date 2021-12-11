@@ -1,7 +1,7 @@
 exec("code.chat.cs");
 
 //suicide multiplier, greater the number less frequent time checks
-$SuicideMult = 0.7;
+$SuicideMult = 0.6;
 
 function remotePlayMode(%clientId)
 {
@@ -718,9 +718,23 @@ function Client::onKilled(%playerId, %killerId, %damageType)
         //LETS SET A GLOBAL COUNTER FOR SUICIDES AND BUILD A RATE THAT IS ACCURATE FOR CHECKING TIME
         //THIS IS BECAUSE SUICIDES ARE A GIVEN IN THE WORLD OF TRIBE
         
-        %suicideClients = getNumClients();
+        %suicideClients = 0;
+
+        for(%cl = Client::getFirst(); %cl != -1; %cl = Client::getNext(%cl)) {
+            
+            if ( (Client::getTeam(%cl) == 0) || (Client::getTeam(%cl) == 1) ) {
+                
+                //if players are on a team add to the count
+                %suicideClients++;
+            }
+            else {
+                //
+                //if observer, do not add to count
+                //
+            }
+        }
+        
         %suicideCount = (floor($SuicideMult * %suicideClients) + 1);
-        //messageAll(0, "Suicide Number: " @ %suicideCount);
         
         if (!$TwoMinWarning) {
             
