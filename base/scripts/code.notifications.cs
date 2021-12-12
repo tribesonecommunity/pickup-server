@@ -160,13 +160,24 @@ function Notifications::CountDown()
          else {
             $halfType = "Match";
          }
-    
-    if (($Notifications::curTimeLeft <= 179) && ($Notifications::curTimeLeft >= 120) && (!$curTimeAdjust)) {
+         
+
+    if (($Notifications::curTimeLeft <= 180) && ($Notifications::curTimeLeft > 120) && (!$curTimeAdjust)) {
         
         //2 minute warning
         $curTimeAdjust = true;
-        schedule(' MessageAll(1, $halfType @ " ends in 2 minutes. [PAUSE DISABLED]~wmine_act.wav"); ', ($Notifications::curTimeLeft - 120));
+        %timeUntil2Min = ($Notifications::curTimeLeft - 120); //for example 179 - 120 = 59 seconds until 2 minute mark
 
+        //this essentially bumps the main time check back on course at exactly 2 minutes
+        schedule("Game::checkTimeLimit();", %timeUntil2Min);
+        schedule("$curTimeAdjust = false;", %timeUntil2Min);
+
+    }
+
+    if ($Notifications::curTimeLeft == 120) {
+        //2 minute warning
+        MessageAll(1, $halfType @ " ends in 2 minutes. [PAUSE DISABLED]~wmine_act.wav");
+        
     }
     
     if ($Notifications::curTimeLeft == 60) {
@@ -177,6 +188,7 @@ function Notifications::CountDown()
     else if ($Notifications::curTimeLeft == 40) {
         
         //30 second warning
+        $Notifications::curTimeLeft = 30;
         schedule("Notifications::CountDown();", 10);
         
     }

@@ -6,11 +6,11 @@ function ObjectiveMission::missionComplete()
 {
 
   if ($Server::BalancedMode && $Server::Half == 1) {
-	  
+      
     Server::nextMission();
     return;
   }
-	
+    
   MessageAll(1, "***** GAME OVER *****~wshieldhit.wav");
   
   $missionComplete = true;
@@ -23,13 +23,13 @@ function ObjectiveMission::missionComplete()
     Team::setObjective(%i, $firstObjectiveLine-4, " ");
     Team::setObjective(%i, $firstObjectiveLine-3, "<f5>Mission Summary:");
     Team::setObjective(%i, $firstObjectiveLine-2, " ");
-	
+    
   }
   
-	//auto-tab at victory screen
-	for(%cl = Client::getFirst(); %cl != -1; %cl = Client::getNext(%cl))
+    //auto-tab at victory screen
+    for(%cl = Client::getFirst(); %cl != -1; %cl = Client::getNext(%cl))
        Game::menuRequest(%cl);
-	
+    
   
   ObjectiveMission::setObjectiveHeading();
   ObjectiveMission::refreshTeamScores();
@@ -151,23 +151,6 @@ function objective::displayBitmap(%team, %line)
    Team::setObjective(%team, %line, "<jc><B0,0:" @ %bitmap1 @ "><B0,0:" @ %bitmap2 @ ">");
 }
 
-function Game::curTimeDecimal(%x)
-{
-	//force only 3 decimals to the right
-	
-	if (%x < 100) {
-	
-		MessageAll(0, "decimalBefore: " @ %x);
-		%curTimeTemp = (%x + 100);
-		%x = (%curTimeTemp - 100);
-		MessageAll(0, "decimalAfter: " @ %x);
-	}
-	else {
-		//do nothing if we already have 3 decimal places or less to the right
-	}
-	return %x;
-}
-
 function Game::checkTimeLimit()
 {
 
@@ -176,7 +159,7 @@ function Game::checkTimeLimit()
   
   if($Server::timeLimit == 0 || $freezedata::actice) { return; }
   
-    // IF BEGINNING TIME CHECK BELOW DOES NOT YIELD A WHOLE NUMBER VALUE, WE NEED TO ADJUST $MISSIONTIME ACCORDINGLY
+   // IF BEGINNING TIME CHECK BELOW DOES NOT YIELD A WHOLE NUMBER VALUE, WE NEED TO ADJUST $MISSIONTIME ACCORDINGLY
   // SO IF remainder val < 0.5 and val > 0, floor(val).... else floor(val+1)
   // WE ARE STILL GOING TO CHECK IF MOD BY TIME UPDATE INTERVAL NEEDS TO HAPPEN
   
@@ -193,114 +176,114 @@ function Game::checkTimeLimit()
   
 
   if (%curTimeRemainder == 0) {
-	  //WHOLE NUMBER GOOD, DO NOTHING
+      //WHOLE NUMBER GOOD, DO NOTHING
   }
   else {
-	  //MessageAll(0, "curTimeBeforeAdj: " @ %curTimeLeft);
-	  //FLOAT NUMBER, BAD... NEED TO DO STUFF NOW
-	  if (%curTimeRemainder < 0.499999) {
-		  //ROUND DOWN
-		  //$missionStartTime -= %curTimeRemainder;
-		  %curTimeLeft = floor(%curTimeLeft);
+      //MessageAll(0, "curTimeBeforeAdj: " @ %curTimeLeft);
+      //FLOAT NUMBER, BAD... NEED TO DO STUFF NOW
+      if (%curTimeRemainder < 0.499999) {
+          //ROUND DOWN
+          //$missionStartTime -= %curTimeRemainder;
+          %curTimeLeft = floor(%curTimeLeft);
 
-	  }
-	  else if (%curTimeRemainder >= 0.499999) {
-			//ROUND UP
-		  //$missionStartTime += (1 - %curTimeRemainder);
-		  %curTimeLeft = (1 + floor(%curTimeLeft));
-		  
-	  }
-	  else {
-		  //do nothing
-	  }
-	  
-	  //%curTimeLeft = ($Server::timeLimit * 60) + $missionStartTime - $simTimeTemp;
-	  //MessageAll(0, "curTimeAfterAdj: " @ %curTimeLeft);
-	  
+      }
+      else if (%curTimeRemainder >= 0.499999) {
+            //ROUND UP
+          //$missionStartTime += (1 - %curTimeRemainder);
+          %curTimeLeft = (1 + floor(%curTimeLeft));
+          
+      }
+      else {
+          //do nothing
+      }
+      
+      //%curTimeLeft = ($Server::timeLimit * 60) + $missionStartTime - $simTimeTemp;
+      //MessageAll(0, "curTimeAfterAdj: " @ %curTimeLeft);
+      
   }
   
   if (%curTimeLeft >= $Game::timeClockUpdate) {
-	  //update this until the last update at timeClockUpdate interval
-	  //notifications will take over for the last 15 seconds
-	  $Notifications::curTimeLeft = %curTimeLeft;
+      //update this until the last update at timeClockUpdate interval
+      //notifications will take over for the last 15 seconds
+      $Notifications::curTimeLeft = %curTimeLeft;
   }
  
   //now at this stage we will always have a WHOLE number
  
   //MessageAll(0, "checkTimeLimit: " @ %curTimeLeft);
-	
+    
   if ($matchStarted)
   {
     if(%curTimeLeft <= 0) {
-		if(%curTimeLeft < -60) {
-			
-			echo("GAME: Time limit exceeded.");
-			$timeLimitReached = true;
-			%set = nameToID("MissionCleanup/ObjectiveSet");
-			for(%i = 0; (%obj = Group::getObject(%set, %i)) != -1; %i++)
-				GameBase::virtual(%obj, "timeLimitReached", %clientId);
-		
-			schedule('MessageAll(0, "Server time limit exceeded... Switching to next map...");', 5);
-			schedule("ObjectiveMission::missionComplete();", 9);
-		}
-		else {
+        if(%curTimeLeft < -60) {
+            
+            echo("GAME: Time limit exceeded.");
+            $timeLimitReached = true;
+            %set = nameToID("MissionCleanup/ObjectiveSet");
+            for(%i = 0; (%obj = Group::getObject(%set, %i)) != -1; %i++)
+                GameBase::virtual(%obj, "timeLimitReached", %clientId);
+        
+            schedule('MessageAll(0, "Server time limit exceeded... Switching to next map...");', 5);
+            schedule("ObjectiveMission::missionComplete();", 9);
+        }
+        else {
 
-			echo("GAME: timelimit");
-			$timeLimitReached = true;
-			echo("checking for objective time limit status...");
-			%set = nameToID("MissionCleanup/ObjectiveSet");
-			for(%i = 0; (%obj = Group::getObject(%set, %i)) != -1; %i++)
-				GameBase::virtual(%obj, "timeLimitReached", %clientId);
+            echo("GAME: timelimit");
+            $timeLimitReached = true;
+            echo("checking for objective time limit status...");
+            %set = nameToID("MissionCleanup/ObjectiveSet");
+            for(%i = 0; (%obj = Group::getObject(%set, %i)) != -1; %i++)
+                GameBase::virtual(%obj, "timeLimitReached", %clientId);
 
-			ObjectiveMission::missionComplete();
-		}
+            ObjectiveMission::missionComplete();
+        }
     }
     else
     {
-		
-	  //at 2 minute mark switch to old scheduling check
-	if (%curTimeLeft <= 120) {
-			
-		$TwoMinWarning = true;
-		//MessageAll(0, "Suicide Time Checker OFF!");
+        
+      //at 2 minute mark switch to old scheduling check
+    if (%curTimeLeft <= 120) {
+            
+        $TwoMinWarning = true;
+        //MessageAll(0, "Suicide Time Checker OFF!");
 
-		//checks to see if we are on the interval path based on timeClockUpdate value
-		if((%curTimeLeft % $Game::timeClockUpdate) == 0) {
-			
-				if(%curTimeLeft >= $Game::timeClockUpdate)
-					schedule("Game::checkTimeLimit();", $Game::timeClockUpdate);
-				else
-					schedule("Game::checkTimeLimit();", %curTimeLeft);
-				
-		}
-		else {
-				
-			//we've fallen off the path, need to adjust now
-			
-			//might not need to floor here if everything works smoothly above
-			%curTimeSched = floor(%curTimeLeft % $Game::timeClockUpdate);
-			schedule("Game::checkTimeLimit();", %curTimeSched);
-		}
-	}
-	else {
-		//SERVER IS EMPTY, LETS SCHEDULE THE OLD FASHION WAY
-		if ($ServerIsEmpty) {
-			
-			schedule("Game::checkTimeLimit();", $Game::timeClockUpdate);
-		}
-		//OTHERWISE DO NOTHING HANDLED BY SUICIDE COUNTER NOW
-	}
-	//MessageAll(0, "clientTime: " @ %curTimeLeft);
-	
-	UpdateClientTimes(%curTimeLeft);
+        //checks to see if we are on the interval path based on timeClockUpdate value
+        if((%curTimeLeft % $Game::timeClockUpdate) == 0) {
+            
+                if(%curTimeLeft >= $Game::timeClockUpdate)
+                    schedule("Game::checkTimeLimit();", $Game::timeClockUpdate);
+                else
+                    schedule("Game::checkTimeLimit();", %curTimeLeft);
+                
+        }
+        else {
+                
+            //we've fallen off the path, need to adjust now
+            
+            //might not need to floor here if everything works smoothly above
+            %curTimeSched = floor(%curTimeLeft % $Game::timeClockUpdate);
+            schedule("Game::checkTimeLimit();", %curTimeSched);
+        }
+    }
+    else {
+        //SERVER IS EMPTY, LETS SCHEDULE THE OLD FASHION WAY
+        if ($ServerIsEmpty) {
+            
+            schedule("Game::checkTimeLimit();", $Game::timeClockUpdate);
+        }
+        //OTHERWISE DO NOTHING HANDLED BY SUICIDE COUNTER NOW
+    }
+    //MessageAll(0, "clientTime: " @ %curTimeLeft);
+    
+    UpdateClientTimes(%curTimeLeft);
     }
   }
 }
 
 function Game::UpdateTimeOnly() {
-	
-	%curTimeLeft = ($Server::timeLimit * 60) + $missionStartTime - $simTimeTemp;
-	UpdateClientTimes(%curTimeLeft);
+    
+    %curTimeLeft = ($Server::timeLimit * 60) + $missionStartTime - $simTimeTemp;
+    UpdateClientTimes(%curTimeLeft);
 
 }
 
@@ -358,7 +341,7 @@ function Game::refreshClientScore(%clientId)
    %team = Client::getTeam(%clientId);
    if(%team == -1) // observers go last.
       %team = 9;
-	  
+      
    Client::setScore(%clientId, "%n\t%t\t  " @ floor(%clientId.score)  @ "\t%p\t%l", %clientId.score + (9 - %team) * 10000);
 }
 
@@ -864,14 +847,14 @@ function Flag::onDrop(%player, %type)
 
 function Flag::onCollision(%this, %object)
 {
-	if ($Server::Halftime)
-		return;
-	if(getObjectType(%object) != "Player")
-		return;
-	if(%this.carrier != -1)
-		return; // spurious collision
-	if(Player::isAIControlled(%object))
-		return;
+    if ($Server::Halftime)
+        return;
+    if(getObjectType(%object) != "Player")
+        return;
+    if(%this.carrier != -1)
+        return; // spurious collision
+    if(Player::isAIControlled(%object))
+        return;
 
   //gather various variablez
   %name = Item::getItemData(%this);
@@ -894,8 +877,8 @@ function Flag::onCollision(%this, %object)
       Item::setVelocity(%this, "0 0 0");
       GameBase::startFadeIn(%this);
       %this.atHome = true;
-	  
-	  $FlagIsDropped[%flagTeam] = false;
+      
+      $FlagIsDropped[%flagTeam] = false;
 
       MessageAllExcept(%playerClient, 0, %touchClientName @ " returned the " @ getTeamName(%playerTeam) @ " flag!~wflagreturn.wav");
       Client::sendMessage(%playerClient, 0, "You returned the " @ getTeamName(%playerTeam) @ " flag!~wflagreturn.wav");
@@ -906,8 +889,8 @@ function Flag::onCollision(%this, %object)
 
       //afk monitor
       %playerClient.lastActiveTimestamp = getSimTime();
-	  
-	  Client::onFlagReturn(%flagTeam, %playerClient);
+      
+      Client::onFlagReturn(%flagTeam, %playerClient);
 
       //active code
       zadmin::ActiveMessage::All(FlagReturned, %flagTeam, %playerClient);
@@ -932,10 +915,10 @@ function Flag::onCollision(%this, %object)
           %flag.enemyCaps++;
 
           Item::hide(%flag, false);
-		  
-		  
+          
+          
           $flagAtHome[1] = true;
-		  
+          
           GameBase::setPosition(%flag, %flag.originalPosition);
           Item::setVelocity(%flag, "0 0 0");
 
@@ -975,12 +958,12 @@ function Flag::onCollision(%this, %object)
       Player::setItemCount(%object, Flag, 1);
       Player::mountItem(%object, Flag, $FlagSlot, %flagTeam);
       Item::hide(%this, true);
-	  
-	  //THIS FLAG HAS BEEN PICKED UP
-	  $FlagIsDropped[%flagTeam] = false;
-	  
+      
+      //THIS FLAG HAS BEEN PICKED UP
+      $FlagIsDropped[%flagTeam] = false;
+      
       $flagAtHome[1] = false;
-	  
+      
       %this.atHome = false;
       %this.carrier = %object;
       %this.pickupSequence++;
