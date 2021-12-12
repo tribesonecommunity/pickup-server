@@ -177,7 +177,13 @@ function Notifications::CountDown()
     else if ($Notifications::curTimeLeft == 40) {
         
         //30 second warning
-        schedule(' MessageAll(1, $halfType @ " ends in 30 seconds. " @ $ae @ "~wmine_act.wav"); ', 10);
+        schedule("Notifications::CountDown();", 10);
+        
+    }
+    else if ($Notifications::curTimeLeft == 30) {
+        
+        //30 second warning
+        MessageAll(1, $halfType @ " ends in 30 seconds. " @ $ae @ "~wmine_act.wav");
         
     }
     else if($Notifications::curTimeLeft == 20) {
