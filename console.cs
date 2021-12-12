@@ -86,6 +86,10 @@ exec("code.server.cs");
 exec("code.game.cs");
 exec("code.observer.cs");
 exec("code.player.cs");
+
+//createServer needs to go here
+createServer($HostMission, True);
+
 exec("autoexec.cs");
 exec("code.lasthope.cs");
 exec("code.balancedmode.cs");
@@ -98,7 +102,6 @@ exec("code.midair.nadejump.cs");
 exec("code.smurfscanner.cs");
 exec("code.antiscum.cs");
 
-createServer($HostMission, True);
 translateMasters();
 
 echo("Dedicated Server Initialized");

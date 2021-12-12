@@ -75,9 +75,29 @@ function AntiScum::NotifyTimeLeft(%cl, %timeLeft, %force) {
 
     if (Player::isDead(%player)) {
       Player::blowUp(%player);
+      
+      //random output will be 0-4
+      %countMsg = 5;
+      %randoMsg = floor(getRandom() * (%countMsg - 0.1));
 
+      //random messages for scum
+      if (%randoMsg == 0) {
+        messageAll(0, Client::getName(%cl) @ " exploded for being a piece of scum!~wBXplo1.wav");
+      }
+      else if (%randoMsg == 1) {
+        messageAll(0, Client::getName(%cl) @ " was casted into the fire!~wBXplo1.wav");
+      }
+      else if (%randoMsg == 2) {
+        messageAll(0, Client::getName(%cl) @ " was punished for being a scum lord!~wBXplo1.wav");
+      }
+      else if (%randoMsg == 3) {
+        messageAll(0, Client::getName(%cl) @ " is basically a certified moron!~wBXplo1.wav");
+      }
+      else {
+        messageAll(0, Client::getName(%cl) @ " blew up for being scummy!~wBXplo1.wav");
+      }
+      
       // Not sure what -100 but it's what TR uses
-      messageAll(0, Client::getName(%cl) @ " blew up!~wBXplo1.wav");
       Client::onKilled(%cl, %cl, -100);
       %clTeam = Client::getTeam(%cl);
       %otherTeam = (%clTeam + 1) % 2;
