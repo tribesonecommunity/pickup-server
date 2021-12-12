@@ -423,10 +423,24 @@ function onServerGhostAlwaysDone()
 
             Client::buildMenu(%clientId, "Pick a team:", "InitialPickTeam");
                 Client::addMenuItem(%clientId, "0Observe", -2);
-                Client::addMenuItem(%clientId, "1Automatic", -1);
-                for(%i = 0; %i < getNumTeams(); %i = %i + 1)
-                    Client::addMenuItem(%clientId, (%i+2) @ getTeamName(%i), %i);
-                    %clientId.justConnected = "";
+                
+                //remove automatic option in tourney mode
+                if(!$Server::TourneyMode) {
+                    
+                    Client::addMenuItem(%clientId, "1Automatic", -1);
+                    
+                    for(%i = 0; %i < getNumTeams(); %i = %i + 1)
+                        Client::addMenuItem(%clientId, (%i+2) @ getTeamName(%i), %i);
+                        %clientId.justConnected = "";
+                    
+                }
+                else {
+                
+                    for(%i = 0; %i < getNumTeams(); %i = %i + 1)
+                        Client::addMenuItem(%clientId, (%i+1) @ getTeamName(%i), %i);
+                        %clientId.justConnected = "";
+                    
+                }
         }
         else {
             Client::setSkin(%clientId, $Server::teamSkin[Client::getTeam(%clientId)]);
