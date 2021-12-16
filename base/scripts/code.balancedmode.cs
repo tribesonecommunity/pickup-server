@@ -9,60 +9,51 @@ Attachment::AddBefore("ObjectiveMission::CheckScoreLimit", "BalancedMode::Object
 //}
 
 function BalancedMode::ObjectiveMission::CheckScoreLimit() {
-	
-	//BALANCE MODE TOGGLES NEED TO CREATE
-	// 0 = BALANCE MODE OFF
-	// 1 = NEW BALANCE MODE, 2nd half adjusted, 8-7 possible.
-	// 2 = OLD BALANCE MODE, 15 min half, 7-7 tie.
-	// DISBAND TRUE/FALSE DUTIES
+  
+  // BALANCE MODE TOGGLES NEED TO CREATE
+  // 0 = BALANCE MODE OFF
+  // 1 = NEW BALANCE MODE, 2nd half adjusted, 8-7 possible.
+  // 2 = OLD BALANCE MODE, 15 min half, 7-7 tie.
+  // DISBAND TRUE/FALSE DUTIES
 
-	
-	if (!$Server::BalancedMode)
-		return;
-		
-		%totalScore = 0;
-        for (%i = 0; %i < getNumTeams(); %i++) {
-			//do stuff
-            %totalScore += $teamScore[%i];
-        }
-		
-        %scoreLimit = $teamScoreLimit * $Server::Half - $Server::Half;
-		
-		if (!$Server::TourneyMode && $Server::Half == 1 && %totalScore > %scoreLimit) {
-			// if in FFA and admin wants to switch to balanced mode, need to check scores to see if its even possible
-			$Server::disableBalanced = true;
-		}
-		
-		
-		if (%totalScore == %scoreLimit && $Server::Half == 1) {
-			$firstHalfCapped = true;
-			Game::HalfTimeNow();
-        }
-		//this is new balance mode
-        else if (%totalScore > %scoreLimit && $Server::Half == 2 && $Server::BalancedMode == 1) {
-			ObjectiveMission::missionComplete();
-            return "halt";
-        }
-		//this is old balance mode
-		else if (%totalScore == %scoreLimit && $Server::Half == 2 && $Server::BalancedMode == 2) {
-			ObjectiveMission::missionComplete();
-            return "halt";
-		}
-		else {
-			//do nothing
-		}
+  if (!$Server::BalancedMode)
+    return;
+    
+  %totalScore = 0;
+  for (%i = 0; %i < getNumTeams(); %i++) {
+    %totalScore += $teamScore[%i];
+  }
+
+  %scoreLimit = $teamScoreLimit * $Server::Half - $Server::Half;
+  
+  if (!$Server::TourneyMode && $Server::Half == 1 && %totalScore > %scoreLimit) {
+    // if in FFA and admin wants to switch to balanced mode, need to check scores to see if its even possible
+    $Server::disableBalanced = true;
+  }
+  
+  if (%totalScore == %scoreLimit && $Server::Half == 1) {
+    $firstHalfCapped = true;
+    Game::HalfTimeNow();
+  } else if (%totalScore > %scoreLimit && $Server::Half == 2 && $Server::BalancedMode == 1) {
+    ObjectiveMission::missionComplete();
+    return "halt";
+  } else if (%totalScore == %scoreLimit && $Server::Half == 2 && $Server::BalancedMode == 2) {
+    ObjectiveMission::missionComplete();
+    return "halt";
+  } else {
+  }
 }
 
 function BalancedMode::onDamage(%this, %type, %value, %pos, %vec, %mom, %vertPos, %quadrant, %object)
 {
-    // Make players invulnerable during halftime for fun
-   if ($Server::Halftime) {
-        return "halt";
-   }
-   // If the match is not started do not allow damage to take place.
-    if (!$matchStarted && !$countdownStarted) {
-       return "halt";
-   }
+  // Make players invulnerable during halftime for fun
+  if ($Server::Halftime) {
+    return "halt";
+  }
+  // If the match is not started do not allow damage to take place.
+  if (!$matchStarted && !$countdownStarted) {
+    return "halt";
+  }
 }
 
 function BalancedMode::CapoutWarning(%team, %cl)
