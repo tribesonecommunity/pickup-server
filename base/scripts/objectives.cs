@@ -466,8 +466,27 @@ function Game::clientKilled(%playerId, %killerId)
 
 function Player::enterMissionArea(%this)
 {
+    
  %set = nameToID("MissionCleanup/ObjectivesSet");
  %this.outArea = "";
+ 
+ %playerClient = Player::getClient(%this);
+ %playerTeam = GameBase::getTeam(%this);
+ %ClientName = Client::getName(%playerClient);
+    
+    if (%playerTeam == 0) {
+        %flagTeam = 1;
+    }
+    else {
+       %flagTeam = 0; 
+    }
+    
+ if((%playerClient == $freeze::FlagClient[%flagTeam]) && (!$TwoMinWarning)) {
+     
+    $freeze::OOB[%flagTeam] = false;
+    MessageAllExcept(%playerClient, 0, %ClientName @ " entered the mission area. [PAUSE ENABLED]");
+
+ }
 
  for(%i = 0; (%obj = Group::getObject(%set, %i)) != -1; %i++)
   GameBase::virtual(%obj, "playerEnterMissionArea", %this);
@@ -477,8 +496,25 @@ function Player::enterMissionArea(%this)
 
 function Player::leaveMissionArea(%this)
 {
+    %playerClient = Player::getClient(%this);
+    %ClientName = Client::getName(%playerClient);
+    %playerTeam = GameBase::getTeam(%this);
+    
+    if (%playerTeam == 0) {
+        %flagTeam = 1;
+    }
+    else {
+       %flagTeam = 0; 
+    }
+    // if we have the flag and we've entered OOB
+    if((%playerClient == $freeze::FlagClient[%flagTeam]) && (!$TwoMinWarning)) {
+        
+        $freeze::OOB[%flagTeam] = true;
+        MessageAllExcept(%playerClient, 1, %ClientName @ " left the mission area. [PAUSE DISABLED]");
+    }
+
  %this.outArea=1;
- Client::sendMessage(Player::getClient(%this),1,"You have left the mission area.");
+ Client::sendMessage(%playerClient,1,"You have left the mission area.");
  alertPlayer(%this, 3);
 }
 
@@ -839,6 +875,10 @@ function Flag::onDrop(%player, %type)
 
  // TODO(opsayo) - untested change
  $FlagIsDropped[%flagTeam] = true;
+ 
+ $freeze::OOB[%flagTeam] = false;
+ 
+ $freeze::FlagClient[%flagTeam] = 0;
 
  schedule("Flag::checkReturn(" @ %flag @ ", " @ %flag.pickupSequence @ ");", $flagReturnTime);
  %flag.dropFade = 1;
@@ -879,6 +919,9 @@ function Flag::onCollision(%this, %object)
       %this.atHome = true;
       
       $FlagIsDropped[%flagTeam] = false;
+      $freeze::OOB[%flagTeam] = false;
+      
+      $freeze::FlagClient[%flagTeam] = 0;
 
       MessageAllExcept(%playerClient, 0, %touchClientName @ " returned the " @ getTeamName(%playerTeam) @ " flag!~wflagreturn.wav");
       Client::sendMessage(%playerClient, 0, "You returned the " @ getTeamName(%playerTeam) @ " flag!~wflagreturn.wav");
@@ -913,11 +956,20 @@ function Flag::onCollision(%this, %object)
           %flag.carrier = -1;
           %flag.caps[%playerTeam]++;
           %flag.enemyCaps++;
+          
+          $FlagIsDropped[%playerTeam] = false;
+          $FlagIsDropped[%flagTeam] = false;
+          
+          $freeze::FlagClient[%playerTeam] = 0;
+          $freeze::FlagClient[%flagTeam] = 0;
+          
+          $freeze::OOB[%playerTeam] = false;
+          $freeze::OOB[%flagTeam] = false;
 
           Item::hide(%flag, false);
           
-          
-          $flagAtHome[1] = true;
+          //dont think this is needed anymore
+          //$flagAtHome[1] = true;
           
           GameBase::setPosition(%flag, %flag.originalPosition);
           Item::setVelocity(%flag, "0 0 0");
@@ -962,7 +1014,9 @@ function Flag::onCollision(%this, %object)
       //THIS FLAG HAS BEEN PICKED UP
       $FlagIsDropped[%flagTeam] = false;
       
-      $flagAtHome[1] = false;
+      $freeze::OOB[%flagTeam] = false;
+      
+      $freeze::FlagClient[%flagTeam] = %playerClient;
       
       %this.atHome = false;
       %this.carrier = %object;
@@ -1028,6 +1082,10 @@ function Flag::checkReturn(%flag, %sequenceNum)
    Client::onFlagReturn(%flagTeam, 0);
 
    $FlagIsDropped[%flagTeam] = false;
+   $freeze::OOB[%flagTeam] = false;
+   
+   $freeze::FlagClient[%flagTeam] = 0;
+   
    %flag.atHome = true;
    GameBase::startFadeIn(%flag);
    %flag.fadeOut= "";
@@ -1109,6 +1167,10 @@ function Flag::playerLeaveMissionArea(%this, %playerId)
 
    //fix
    %this.atHome = true;
+   
+   $FlagIsDropped[%flagTeam] = false;
+   $freeze::FlagClient[%flagTeam] = 0;
+   $freeze::OOB[%flagTeam] = false;
 
    //active code
    zadmin::ActiveMessage::All(FlagReturned, %flagTeam, 0); //server returns

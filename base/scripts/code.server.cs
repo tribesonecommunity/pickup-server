@@ -502,7 +502,7 @@ function Server::FFAReset()
     messageAll(0, "Server switched to Free-For-All Mode.");
 
     $Server::TourneyMode = false;
-	$Server::Half = 1;
+	$Server::Half = 0;
     centerprintall(); // clear the messages
 	  
 	Server::BalancedModeTime(false);

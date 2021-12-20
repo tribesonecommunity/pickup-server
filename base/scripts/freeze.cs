@@ -65,6 +65,9 @@ function freeze::start(%cl)
     if($freezedata::actice || $NoFlagThrow)
         return;
     
+    if ($freeze::OOB[0] || $freeze::OOB[1])
+        return;
+    
     //IF PAUSE INITIATED, USERS CANT THROW FLAG LAST SECOND
     $NoFlagThrow = true;
     
@@ -245,4 +248,4 @@ function freeze::stopNow()
     {
         %cl.observerMode = "";
     }
-}                                                            
+}

@@ -262,7 +262,7 @@ function displayMenuAdminMenu(%cl)
     addLine("START GAME", "smatch", (%cl.canForceMatchStart && %tModeWaiting && !$loadingMission && $Server::Half != 2), %cl);
     addLine("==========", "", (%cl.canForceMatchStart && %tModeWaiting && !$loadingMission && $Server::Half != 2), %cl);
     
-    if (($FlagIsDropped[0] || $FlagIsDropped[1]) || ($matchStarted && %curTimePause <= 120 && !$freezedata::actice)) {
+    if (($FlagIsDropped[0] || $FlagIsDropped[1]) || ($matchStarted && %curTimePause <= 120 && !$freezedata::actice) || ($freeze::OOB[0] || $freeze::OOB[1])) {
         addLine("===================", "", %cl.canPermanentBan, %cl);
         addLine("PAUSE NOT AVAILABLE", "", %cl.canPermanentBan, %cl);
         addLine("===================", "", %cl.canPermanentBan, %cl);
@@ -399,7 +399,7 @@ function processMenuServerTogglesMenu(%cl, %sel)
     else if (%sel == "nobalance") {
         $Server::BalancedMode = 0;
         messageAll(0, "Balanced Mode has been DISABLED by an Admin.");
-        $Server::Half = 1;
+        $Server::Half = 0;
         Server::BalancedModeTime(false);
     }
     
@@ -1400,7 +1400,7 @@ function aActionsetModeFFA(%clientId)
       }
       
       $Server::TourneyMode = false;
-      $Server::Half = 1;
+      $Server::Half = 0;
       centerprintall(); // clear the messages
       Server::BalancedModeTime(false);
       
