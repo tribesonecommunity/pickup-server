@@ -43,13 +43,13 @@ function AntiScum::NotifyTimeLeft(%cl, %timeLeft, %force) {
     return;
   }
 
-  if (%force) {
-    if (%timeLeft < 0) {
-      %timeLeft = 0;
-    }
-    Client::sendMessage(%cl, 1, "You have " @ %timeLeft @ " seconds to bring the flag home.~wshell_click.wav");
-    return;
-  }
+  //if (%force) {
+    //if (%timeLeft < 0) {
+      //%timeLeft = 0;
+    //}
+    //Client::sendMessage(%cl, 1, "You have " @ %timeLeft @ " seconds to bring the flag home.~wshell_click.wav");
+    //return;
+  //}
 
   if (%timeLeft > 5) {
     if (%timeLeft == 30 || %timeLeft == 15 || %timeLeft == 10) {
@@ -60,9 +60,9 @@ function AntiScum::NotifyTimeLeft(%cl, %timeLeft, %force) {
   } else if (%timeLeft > 0 && %timeLeft < 5) {
     Client::sendMessage(%cl, 0, "~wError_Message.wav");
   } else if (%timeLeft <= 0) {
-    if (%timeLeft == 0) {
+    //if (%timeLeft == 0) {
       Client::sendMessage(%cl, 1, "You are burning up! Bring the flag home!~wError_Message.wav");
-    }
+    //}
 
     %player = Client::getOwnedObject(%cl);
     %armor = Player::getArmor(%player);
