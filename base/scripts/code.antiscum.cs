@@ -364,13 +364,18 @@ function AntiScum::onKilled(%playerId, %killerId, %damageType) {
   if (!$AntiScum::ENABLED) {
     return;
   }
+  
+  //suicide occured - do not reset timer
+  if (%playerId == %killerId) {
+      return;
+  }
 
   %killedTeam = Client::getTeam(%playerId);
   %killerTeam = Client::getTeam(%killerId);
 
   // If the flag carrier was the killer
   %currentFlagCarrier = $AntiScum::currentFlagCarrier[%killedTeam];
-  if ($AntiScum::currentFlagCarrier[%killedTeam] == %killerId && %playerId != %killerId) {
+  if ($AntiScum::currentFlagCarrier[%killedTeam] == %killerId) {
     if ($AntiScum::isFlagStandoff[%killedTeam]) {
       $AntiScum::flagCarrierTimeLeft[%killedTeam] = $AntiScum::STANDOFF_DURATION_SECONDS;
     } else {
@@ -395,12 +400,38 @@ function AntiScum::onKilled(%playerId, %killerId, %damageType) {
       }
     }
   }
-
+  else { }
+  
+  if (%killedTeam == %killerTeam) {
+      $AntiScum::TeamKilled = true;
+      //we need to set the opposing team value to make the condition valid
+      if (%killedTeam == 1) {
+          %newTeam = 0;
+      }
+      else {
+          %newTeam = 1;
+      }
+  }
+  else {
+      // no teamkill has occured
+      $AntiScum::TeamKilled = false;
+  }
+  
   // See if the flag carrier just died, if so reset stuff
+
+  //death by opponent
   if ($AntiScum::lastFlagCarrier[%killerTeam] == %playerId) {
     $AntiScum::flagCarrierDamageList[%killerTeam] = "";
     $AntiScum::flagCarrierDamageListCount[%killerTeam] = 0;
     $AntiScum::currentFlagCarrier[%killerTeam] = "";
     $AntiScum::lastFlagCarrier[%killerTeam] = "";
   }
+  //death by teammate
+  else if ($AntiScum::TeamKilled && ($AntiScum::lastFlagCarrier[%newTeam] == %playerId)) {
+    $AntiScum::flagCarrierDamageList[%newTeam] = "";
+    $AntiScum::flagCarrierDamageListCount[%newTeam] = 0;
+    $AntiScum::currentFlagCarrier[%newTeam] = "";
+    $AntiScum::lastFlagCarrier[%newTeam] = "";
+  }
+  else { }
 }

@@ -27,10 +27,9 @@ function ObjectiveMission::missionComplete()
   }
   
     //auto-tab at victory screen
-    for(%cl = Client::getFirst(); %cl != -1; %cl = Client::getNext(%cl))
-       Game::menuRequest(%cl);
-    
-  
+    //for(%cl = Client::getFirst(); %cl != -1; %cl = Client::getNext(%cl))
+       //Game::menuRequest(%cl);
+   
   ObjectiveMission::setObjectiveHeading();
   ObjectiveMission::refreshTeamScores();
   %lineNum = "";
@@ -245,7 +244,6 @@ function Game::checkTimeLimit()
     if (%curTimeLeft <= 120) {
             
         $TwoMinWarning = true;
-        //MessageAll(0, "Suicide Time Checker OFF!");
 
         //checks to see if we are on the interval path based on timeClockUpdate value
         if((%curTimeLeft % $Game::timeClockUpdate) == 0) {
@@ -273,8 +271,8 @@ function Game::checkTimeLimit()
         }
         //OTHERWISE DO NOTHING HANDLED BY SUICIDE COUNTER NOW
     }
-    //MessageAll(0, "clientTime: " @ %curTimeLeft);
     
+    //MessageAll(0, "clientTime: " @ %curTimeLeft);
     UpdateClientTimes(%curTimeLeft);
     }
   }
@@ -282,7 +280,7 @@ function Game::checkTimeLimit()
 
 function Game::UpdateTimeOnly() {
     
-    %curTimeLeft = ($Server::timeLimit * 60) + $missionStartTime - $simTimeTemp;
+    %curTimeLeft = ($Server::timeLimit * 60) + ($missionStartTime - $simTimeTemp);
     UpdateClientTimes(%curTimeLeft);
 
 }

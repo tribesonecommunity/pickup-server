@@ -750,7 +750,7 @@ function Client::onKilled(%playerId, %killerId, %damageType)
         
         %suicideCount = (floor($SuicideMult * %suicideClients) + 1);
         
-        if (!$TwoMinWarning) {
+        if (!$TwoMinWarning && !$curTimeAdjust) {
             
             $SuicideTimeChecker++;
             if ($SuicideTimeChecker >= %suicideCount) {
@@ -828,6 +828,7 @@ function Client::onKilled(%playerId, %killerId, %damageType)
 
     //active messaging
     //if (Client::getName(%killerId) != "")
+    
     zadmin::ActiveMessage::All(KillTrak, %killerId, %playerId, $zadmin::WeaponName[%damageType]);
 
     %killerTeam = Client::GetTeam(%killerId);

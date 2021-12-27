@@ -450,17 +450,21 @@ function Server::finishMissionLoad()
     $Server::disableBalanced = false;
     
     $NoFlagThrow = false;
+    $FlagIsDropped[0] = false;
+    $FlagIsDropped[1] = false;
+    
     $freezedata::actice = 0;
     $timeCheckSwitch = false;
     
-    //last variable to get set
-    $loadingMission = false;
-    
-    $ServerIsEmpty = false;
-    %tempNumClients = getNumClients();
-    if (%tempNumClients == 0) {
+    if (getNumClients() > 0) {
+        $ServerIsEmpty = false;
+    }
+    else {
         $ServerIsEmpty = true;
     }
+    
+    //last variable to get set
+    $loadingMission = false;
     
     if($SinglePlayer)
         Game::startMatch();
