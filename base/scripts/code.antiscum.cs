@@ -43,13 +43,12 @@ function AntiScum::NotifyTimeLeft(%cl, %timeLeft, %force) {
     return;
   }
 
-  //if (%force) {
-    //if (%timeLeft < 0) {
-      //%timeLeft = 0;
-    //}
-    //Client::sendMessage(%cl, 1, "You have " @ %timeLeft @ " seconds to bring the flag home.~wshell_click.wav");
-    //return;
-  //}
+  if (%force) {
+    if (%timeLeft < 0) {
+      %timeLeft = 0;
+    }
+    Client::sendMessage(%cl, 1, "You have " @ %timeLeft @ " seconds to bring the flag home.~wshell_click.wav");
+  }
 
   if (%timeLeft > 5) {
     if (%timeLeft == 30 || %timeLeft == 15 || %timeLeft == 10) {
@@ -60,16 +59,15 @@ function AntiScum::NotifyTimeLeft(%cl, %timeLeft, %force) {
   } else if (%timeLeft > 0 && %timeLeft < 5) {
     Client::sendMessage(%cl, 0, "~wError_Message.wav");
   } else if (%timeLeft <= 0) {
-    //if (%timeLeft == 0) {
-      Client::sendMessage(%cl, 1, "You are burning up! Bring the flag home!~wError_Message.wav");
-    //}
 
     %player = Client::getOwnedObject(%cl);
     %armor = Player::getArmor(%player);
     %damage = %armor.maxDamage * $AntiScum::TIME_DAMAGE_RATIO;
     %currentDamageLevel = GameBase::getDamageLevel(%player);
-
-    Client::sendMessage(%cl, 0, "~wError_Message.wav");
+    
+    Client::sendMessage(%cl, 1, "You are burning up! Bring the flag home!~wError_Message.wav");
+    //Client::sendMessage(%cl, 0, "~wError_Message.wav");
+    
     Player::setDamageFlash(%player, %damage);
     GameBase::setDamageLevel(%player, %currentDamageLevel + %damage);
 
@@ -403,7 +401,7 @@ function AntiScum::onKilled(%playerId, %killerId, %damageType) {
   else { }
   
   if (%killedTeam == %killerTeam) {
-      $AntiScum::TeamKilled = true;
+      %teamKilled = true;
       //we need to set the opposing team value to make the condition valid
       if (%killedTeam == 1) {
           %newTeam = 0;
@@ -414,7 +412,7 @@ function AntiScum::onKilled(%playerId, %killerId, %damageType) {
   }
   else {
       // no teamkill has occured
-      $AntiScum::TeamKilled = false;
+      %teamKilled = false;
   }
   
   // See if the flag carrier just died, if so reset stuff
@@ -427,7 +425,7 @@ function AntiScum::onKilled(%playerId, %killerId, %damageType) {
     $AntiScum::lastFlagCarrier[%killerTeam] = "";
   }
   //death by teammate
-  else if ($AntiScum::TeamKilled && ($AntiScum::lastFlagCarrier[%newTeam] == %playerId)) {
+  else if (%teamKilled && ($AntiScum::lastFlagCarrier[%newTeam] == %playerId)) {
     $AntiScum::flagCarrierDamageList[%newTeam] = "";
     $AntiScum::flagCarrierDamageListCount[%newTeam] = 0;
     $AntiScum::currentFlagCarrier[%newTeam] = "";
