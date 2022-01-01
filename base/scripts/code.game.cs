@@ -183,6 +183,11 @@ function Game::startMatch()
     
     $FlagIsDropped[0] = 0;
     $FlagIsDropped[1] = 0;
+    $freeze::FlagClient[0] = 0;
+    $freeze::FlagClient[1] = 0;
+    
+    $freeze::OOB[0] = false;
+    $freeze::OOB[1] = false;
     $NoFlagThrow = false;
     $curTimeAdjust = false;
     $countdownStarted = false;
@@ -244,6 +249,11 @@ function Game::startHalf()
     
     $FlagIsDropped[0] = 0;
     $FlagIsDropped[1] = 0;
+    $freeze::FlagClient[0] = 0;
+    $freeze::FlagClient[1] = 0;
+    $freeze::OOB[0] = false;
+    $freeze::OOB[1] = false;
+    
     $NoFlagThrow = false;
     
     $missionStartTime = getSimTime();
@@ -422,25 +432,32 @@ function onServerGhostAlwaysDone()
             }
 
             Client::buildMenu(%clientId, "Pick a team:", "InitialPickTeam");
-                Client::addMenuItem(%clientId, "0Observe", -2);
+            Client::addMenuItem(%clientId, "0Observe", -2);
+            //re-add Automatic
+            Client::addMenuItem(%clientId, "1Automatic", -1);
+            
+                for(%i = 0; %i < getNumTeams(); %i = %i + 1){
+                    Client::addMenuItem(%clientId, (%i+2) @ getTeamName(%i), %i);
+                    %clientId.justConnected = "";
+                }
                 
                 //remove automatic option in tourney mode
-                if(!$Server::TourneyMode) {
+                //if(!$Server::TourneyMode) {
                     
-                    Client::addMenuItem(%clientId, "1Automatic", -1);
+                    //Client::addMenuItem(%clientId, "1Automatic", -1);
                     
-                    for(%i = 0; %i < getNumTeams(); %i = %i + 1)
-                        Client::addMenuItem(%clientId, (%i+2) @ getTeamName(%i), %i);
-                        %clientId.justConnected = "";
+                    //for(%i = 0; %i < getNumTeams(); %i = %i + 1)
+                        //Client::addMenuItem(%clientId, (%i+2) @ getTeamName(%i), %i);
+                        //%clientId.justConnected = "";
                     
-                }
-                else {
+                //}
+                //else {
                 
-                    for(%i = 0; %i < getNumTeams(); %i = %i + 1)
-                        Client::addMenuItem(%clientId, (%i+1) @ getTeamName(%i), %i);
-                        %clientId.justConnected = "";
+                    //for(%i = 0; %i < getNumTeams(); %i = %i + 1)
+                        //Client::addMenuItem(%clientId, (%i+1) @ getTeamName(%i), %i);
+                        //%clientId.justConnected = "";
                     
-                }
+                //}
         }
         else {
             Client::setSkin(%clientId, $Server::teamSkin[Client::getTeam(%clientId)]);
@@ -758,6 +775,10 @@ function Client::onKilled(%playerId, %killerId, %damageType)
                 Game::checkTimeLimit();
                 $SuicideTimeChecker = 0;
             }
+        }
+        else {
+            //reset tracker
+            $SuicideTimeChecker = 0;
         }
     }
     else

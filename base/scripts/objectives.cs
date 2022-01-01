@@ -213,6 +213,18 @@ function Game::checkTimeLimit()
     
   if ($matchStarted)
   {
+      
+      if ($Collector::DamageEnabled) {
+        //damage - damage dealt
+        for(%cl = Client::getFirst(); %cl != -1; %cl = Client::getNext(%cl)) {
+            
+            zadmin::ActiveMessage::All( DamageDealt, %cl, 0, $DmgTracker::DamageOut[%cl] );
+            $DmgTracker::DamageOut[%cl] = 0;
+            zadmin::ActiveMessage::All( DamageDealt, 0, %cl, $DmgTracker::DamageIn[%cl] );
+            $DmgTracker::DamageIn[%cl] = 0;
+        }
+      }
+
     if(%curTimeLeft <= 0) {
         if(%curTimeLeft < -60) {
             
@@ -482,7 +494,7 @@ function Player::enterMissionArea(%this)
  if((%playerClient == $freeze::FlagClient[%flagTeam]) && (!$TwoMinWarning)) {
      
     $freeze::OOB[%flagTeam] = false;
-    MessageAllExcept(%playerClient, 0, %ClientName @ " entered the mission area. [PAUSE ENABLED]");
+    //MessageAllExcept(%playerClient, 0, %ClientName @ " entered the mission area. [PAUSE ENABLED]");
 
  }
 
@@ -508,7 +520,7 @@ function Player::leaveMissionArea(%this)
     if((%playerClient == $freeze::FlagClient[%flagTeam]) && (!$TwoMinWarning)) {
         
         $freeze::OOB[%flagTeam] = true;
-        MessageAllExcept(%playerClient, 1, %ClientName @ " left the mission area. [PAUSE DISABLED]");
+        //MessageAllExcept(%playerClient, 1, %ClientName @ " left the mission area. [PAUSE DISABLED]");
     }
 
  %this.outArea=1;

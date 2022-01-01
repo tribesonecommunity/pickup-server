@@ -453,6 +453,12 @@ function Server::finishMissionLoad()
     $FlagIsDropped[0] = false;
     $FlagIsDropped[1] = false;
     
+    $freeze::OOB[0] = false;
+    $freeze::OOB[1] = false;
+    
+    $freeze::FlagClient[0] = 0;
+    $freeze::FlagClient[1] = 0;
+    
     $freezedata::actice = 0;
     $timeCheckSwitch = false;
     

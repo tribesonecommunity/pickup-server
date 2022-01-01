@@ -266,7 +266,11 @@ function Player::onDamage(%this,%type,%value,%pos,%vec,%mom,%vertPos,%quadrant,%
             }
             
             if ($Collector::DamageEnabled) {
-                zadmin::ActiveMessage::All( DamageDealt, %shooterClient, %damagedClient, %newValue );
+                
+                $DmgTracker::DamageOut[%shooterClient] += %newValue;
+                $DmgTracker::DamageIn[%damagedClient] += %newValue;
+                
+                //zadmin::ActiveMessage::All( DamageDealt, %shooterClient, %damagedClient, %newValue );
             }
         }
     }

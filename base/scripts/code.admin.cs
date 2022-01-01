@@ -718,6 +718,8 @@ function displayMenuChangeTeamsMenu(%cl, %opt)
             
             //match has not yet started, observer switch should still work here
             addLine("Observer", -2, true, %cl);
+            //re-adding Automatic
+            addLine("Automatic", -1, true, %cl);
         }
     }
     else {
