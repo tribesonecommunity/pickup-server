@@ -2,48 +2,50 @@
 // v 3.02 - 2004/02/03
 // Module for Tribes servers used to pause/resume game. Written as part of FSTAT v2.x, here modified for standalone purposes.
 // By Slitz
+// Modified By: KiLLeR2001 for PU Servers
+// v 4.0 - 12/19/2021
 // --------------------------------------------------------------------------------------------------------------------------
 // ** Install notes **
 // 1. Make sure this file is executed during server start.
 // 2. Add the menu options (exactly how depends on your server. the following is an example)
-//      I. Add these lines to function Game::menuRequest under the options menu:
-//          if(!$freezedata::actice && $matchStarted && $Server::timelimit > 0)Client::addMenuItem(%clientId, %curItem++ @ "Pause game", "pause");
-//          else if($freezedata::actice)Client::addMenuItem(%clientId, %curItem++ @ "Resume game", "pauseresume");
-//      II. Add these lines to function processMenuOptions:
-//          if(%opt == "pause")freeze::start(%clientId); - %clientId is the id of the admin
-//          if(%opt == "pauseresume")freeze::stop(%clientId); - same as above
+//		I. Add these lines to function Game::menuRequest under the options menu:
+//			if(!$freezedata::actice && $matchStarted && $Server::timelimit > 0)Client::addMenuItem(%clientId, %curItem++ @ "Pause game", "pause");
+//			else if($freezedata::actice)Client::addMenuItem(%clientId, %curItem++ @ "Resume game", "pauseresume");
+//		II. Add these lines to function processMenuOptions:
+//			if(%opt == "pause")freeze::start(%clientId); - %clientId is the id of the admin
+//			if(%opt == "pauseresume")freeze::stop(%clientId); - same as above
 // 3. Make other necessary adjustments
-//      I. Add this line to function processMenuPickTeam:
-//          if($freezedata::actice && !Observer::isObserver(%clientId))return;
-//      II. Add this line to function Game::playerSpawn to force joining players into pause
-//          if($freezedata::actice)freeze::init(%clientId);
-//      III. Add this line to the top of Game::checkTimeLimit
-//          if($freezedata::actice){schedule("Game::checkTimeLimit();", 10);return;}
-//      IV. Make sure paused players can't take damage or die by adding this line at the top of functions Player::onDamage and remoteKill:
-//          if($freezedata::actice)return;
-//      V. IMPORTANT STEPS: Make sure stuff is cleaned up when players drop during pause. In Server::onClientDisconnect add these lines:
-//          if(%clientId.frozen) {
-//              %player = $freezedata::realobj[%clientId];
-//              removeFromSet(MissionCleanup,%player);
-//              deleteObject(%player);
-//              removeFromSet(MissionCleanup,$freezedata::camId[%clientId]);
-//              deleteObject($freezedata::camId[%clientId]);
-//              $freezedata::camId[%clientId] = "";
-//          }
-//          Also add this line to Server::onClientConnect to reset the player's paused state:
-//              %clientid.frozen = false;
-//      VI. Add this line anywhere in objectives.cs (just to make sure pause mode is reset on mission change)
-//              if($freezedata::actice)freeze::stopNow();
-//              
+//		I. Add this line to function processMenuPickTeam:
+//			if($freezedata::actice && !Observer::isObserver(%clientId))return;
+//		II. Add this line to function Game::playerSpawn to force joining players into pause
+//			if($freezedata::actice)freeze::init(%clientId);
+//		III. Add this line to the top of Game::checkTimeLimit
+//			if($freezedata::actice){schedule("Game::checkTimeLimit();", 10);return;}
+//		IV. Make sure paused players can't take damage or die by adding this line at the top of functions Player::onDamage and remoteKill:
+//			if($freezedata::actice)return;
+//		V. IMPORTANT STEPS: Make sure stuff is cleaned up when players drop during pause. In Server::onClientDisconnect add these lines:
+//			if(%clientId.frozen) {
+//				%player = $freezedata::realobj[%clientId];
+//				removeFromSet(MissionCleanup,%player);
+//				deleteObject(%player);
+//				removeFromSet(MissionCleanup,$freezedata::camId[%clientId]);
+//				deleteObject($freezedata::camId[%clientId]);
+//				$freezedata::camId[%clientId] = "";
+//			}
+//			Also add this line to Server::onClientConnect to reset the player's paused state:
+//				%clientid.frozen = false;
+//		VI. Add this line anywhere in objectives.cs (just to make sure pause mode is reset on mission change)
+//				if($freezedata::actice)freeze::stopNow();
+//				
 // 4. Things to consider:
-//      It's a good idea to force observermode "observerFly" or disable observing all together while $freezedata::actice to keep people from spying on enemy positions
-//      Do this by eg adding if($freezedata::actice)return; in functions Observer::jump and Observer::enterObserverMode
-//      You can do a "if($freezedata::actice)return;" in functions like remotePrevWeapon and remoteNextWeapon to make sure things are really frozen while in pause
+// 		It's a good idea to force observermode "observerFly" or disable observing all together while $freezedata::actice to keep people from spying on enemy positions
+//		Do this by eg adding if($freezedata::actice)return; in functions Observer::jump and Observer::enterObserverMode
+//		You can do a "if($freezedata::actice)return;" in functions like remotePrevWeapon and remoteNextWeapon to make sure things are really frozen while in pause
 //
 // If I forgot something, PM me(slitz) in IRC.
 // HF etc.
 
-echo ("Running freeze.cs V3.02");
+echo ("Running freeze.cs V4.0");
 
 function freeze::reset()
 {
@@ -63,6 +65,9 @@ function freeze::start(%cl)
         return;
     
     if($freezedata::actice || $NoFlagThrow)
+        return;
+    
+    if ($freeze::OOB[0] || $freeze::OOB[1])
         return;
     
     //IF PAUSE INITIATED, USERS CANT THROW FLAG LAST SECOND
@@ -245,4 +250,4 @@ function freeze::stopNow()
     {
         %cl.observerMode = "";
     }
-}                                                            
+}

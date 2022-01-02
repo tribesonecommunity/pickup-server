@@ -43,33 +43,29 @@ function AntiScum::NotifyTimeLeft(%cl, %timeLeft, %force) {
     return;
   }
 
-  if (%force) {
-    if (%timeLeft < 0) {
-      %timeLeft = 0;
-    }
-    Client::sendMessage(%cl, 1, "You have " @ %timeLeft @ " seconds to bring the flag home.~wshell_click.wav");
-    return;
-  }
-
+  if (%timeLeft < 0) { %timeLeft = 0; }
+  
   if (%timeLeft > 5) {
-    if (%timeLeft == 30 || %timeLeft == 15 || %timeLeft == 10) {
+      
+    if (%timeLeft == 30 || %timeLeft == 20 || %timeLeft == 10 || %force) {
       Client::sendMessage(%cl, 1, "You have " @ %timeLeft @ " seconds to bring the flag home.~wshell_click.wav");
     }
+    else { }
+
   } else if (%timeLeft == 5) {
     Client::sendMessage(%cl, 1, "You have " @ %timeLeft @ " seconds to bring the flag home.~wError_Message.wav");
   } else if (%timeLeft > 0 && %timeLeft < 5) {
     Client::sendMessage(%cl, 0, "~wError_Message.wav");
   } else if (%timeLeft <= 0) {
-    if (%timeLeft == 0) {
-      Client::sendMessage(%cl, 1, "You are burning up! Bring the flag home!~wError_Message.wav");
-    }
 
     %player = Client::getOwnedObject(%cl);
     %armor = Player::getArmor(%player);
     %damage = %armor.maxDamage * $AntiScum::TIME_DAMAGE_RATIO;
     %currentDamageLevel = GameBase::getDamageLevel(%player);
-
-    Client::sendMessage(%cl, 0, "~wError_Message.wav");
+    
+    Client::sendMessage(%cl, 1, "You are burning up! Bring the flag home!~wError_Message.wav");
+    //Client::sendMessage(%cl, 0, "~wError_Message.wav");
+    
     Player::setDamageFlash(%player, %damage);
     GameBase::setDamageLevel(%player, %currentDamageLevel + %damage);
 
@@ -364,13 +360,18 @@ function AntiScum::onKilled(%playerId, %killerId, %damageType) {
   if (!$AntiScum::ENABLED) {
     return;
   }
+  
+  //suicide occured - do not reset timer
+  if (%playerId == %killerId) {
+      return;
+  }
 
   %killedTeam = Client::getTeam(%playerId);
   %killerTeam = Client::getTeam(%killerId);
 
   // If the flag carrier was the killer
   %currentFlagCarrier = $AntiScum::currentFlagCarrier[%killedTeam];
-  if ($AntiScum::currentFlagCarrier[%killedTeam] == %killerId && %playerId != %killerId) {
+  if ($AntiScum::currentFlagCarrier[%killedTeam] == %killerId) {
     if ($AntiScum::isFlagStandoff[%killedTeam]) {
       $AntiScum::flagCarrierTimeLeft[%killedTeam] = $AntiScum::STANDOFF_DURATION_SECONDS;
     } else {
@@ -395,12 +396,38 @@ function AntiScum::onKilled(%playerId, %killerId, %damageType) {
       }
     }
   }
-
+  else { }
+  
+  if (%killedTeam == %killerTeam) {
+      %teamKilled = true;
+      //we need to set the opposing team value to make the condition valid
+      if (%killedTeam == 1) {
+          %newTeam = 0;
+      }
+      else {
+          %newTeam = 1;
+      }
+  }
+  else {
+      // no teamkill has occured
+      %teamKilled = false;
+  }
+  
   // See if the flag carrier just died, if so reset stuff
+
+  //death by opponent
   if ($AntiScum::lastFlagCarrier[%killerTeam] == %playerId) {
     $AntiScum::flagCarrierDamageList[%killerTeam] = "";
     $AntiScum::flagCarrierDamageListCount[%killerTeam] = 0;
     $AntiScum::currentFlagCarrier[%killerTeam] = "";
     $AntiScum::lastFlagCarrier[%killerTeam] = "";
   }
+  //death by teammate
+  else if (%teamKilled && ($AntiScum::lastFlagCarrier[%newTeam] == %playerId)) {
+    $AntiScum::flagCarrierDamageList[%newTeam] = "";
+    $AntiScum::flagCarrierDamageListCount[%newTeam] = 0;
+    $AntiScum::currentFlagCarrier[%newTeam] = "";
+    $AntiScum::lastFlagCarrier[%newTeam] = "";
+  }
+  else { }
 }
