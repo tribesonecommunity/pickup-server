@@ -28,5 +28,5 @@ $Stats::Rating["OtherDeath"] = -2;
 $Stats::Rating["NadeJump"] = 0;
 $Stats::Rating["MidAir"] = 5;
 $Stats::Rating["MidAirLong"] = 10;
-$Stats::Rating["MidAirCatch"] = -5;
+$Stats::Rating["MidAirLongCatch"] = -5;
 

@@ -10,7 +10,7 @@ function Midair::onMidairDisc(%clOwner, %clTarget, %time)
     if (%teammateMA == 0) {
         if (%meters >= 50) {
             Client::adjustScore(%clOwner, "MidAirLong");
-            Client::adjustScore(%clTarget, "MidAirCatch");
+            Client::adjustScore(%clTarget, "MidAirLongCatch");
             MessageAll(0, Client::GetName(%clOwner) @ " lands [ " @ %meters @ " meter ] mid-air on " @ Client::GetName(%clTarget) @ "!");
             Client::SendMessage(%clOwner, 0, "~wc_buysell.wav");
         }
