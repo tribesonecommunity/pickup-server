@@ -1,7 +1,7 @@
 exec("code.chat.cs");
 
 //suicide multiplier, greater the number less frequent time checks
-$SuicideMult = 0.6;
+$SuicideMult = 0.5;
 
 function remotePlayMode(%clientId)
 {
@@ -228,6 +228,9 @@ function Game::startMatch()
     zadmin::ActiveMessage::All(TeamScore, 1, 0);
     zadmin::ActiveMessage::All(MatchStarted);
     zadmin::AFKDaemon();
+    
+    //begin checking player positions for body blocks
+    Game::BodyBlockCheck();
 }
 
 // Kinda like startMatch, but without resetting scores.
@@ -960,8 +963,8 @@ function Game::DisplayReadyMessage(%client)
   {
     %scoreLimit = $teamScoreLimit * $Server::Half - $Server::Half;
     %scoreboard = "<jc>" @ "<f1>The game is set to <f2>BALANCED MODE\n" @
-                  "<f1>Teams will switch sides at <f2>" @ %scoreLimit @ " <f1>total caps\n" @
-                  "<f1>First team to <f2>" @ $teamScoreLimit @ " <f1>wins\n\n";
+                  "<f1>Teams will switch sides at <f2>" @ %scoreLimit @ " <f1>total caps\n";
+                  //"<f1>First team to <f2>" @ $teamScoreLimit @ " <f1>wins\n\n";
     %scoreboard = %scoreboard @ "<f1>Press FIRE when ready.";
     CenterPrint(%client, %scoreboard, 0);
   }
@@ -979,8 +982,8 @@ function Game::DisplayHalfScoreboard()
         %scoreboard = "<jc>" @ "<f1>First half duration: <f2>" @ $halftimeMins @ " <f1>minutes <f2>" @ $halftimeSecs @ " <f1>seconds.\n\n" @
                 "<f2>Scores at halftime:\n" @
                 "<f1>" @ getTeamName(0) @ ": <f2>" @ $teamScore[0] @ "\n" @
-                "<f1>" @ getTeamName(1) @ ": <f2>" @ $teamScore[1] @ "\n\n" @
-                "<f1> First team to <f2>" @ $teamScoreLimit @ " <f1>wins.\n\n";
+                "<f1>" @ getTeamName(1) @ ": <f2>" @ $teamScore[1] @ "\n\n";
+                //"<f1> First team to <f2>" @ $teamScoreLimit @ " <f1>wins.\n\n";
         if ($Server::Half == 2) {
             %scoreboard = %scoreboard @ "<f1>Match forces in 5 seconds. Please stand by...";
             schedule('Game::ForceTourneyMatchStart();', 5);
@@ -991,8 +994,8 @@ function Game::DisplayHalfScoreboard()
         %scoreboard = "<jc>" @ "<f1>First half duration: <f2>" @ $halftimeMins @ " <f1>minutes <f2>" @ $halftimeSecs @ " <f1>seconds.\n\n" @
                 "<f2>Scores at halftime:\n" @
                 "<f1>" @ getTeamName(0) @ ": <f2>" @ $teamScore[0] @ "\n" @
-                "<f1>" @ getTeamName(1) @ ": <f2>" @ $teamScore[1] @ "\n\n" @
-                "<f1> First team to <f2>" @ %scoreLimit @ " <f1>total caps wins.\n\n";
+                "<f1>" @ getTeamName(1) @ ": <f2>" @ $teamScore[1] @ "\n\n";
+                //"<f1> First team to <f2>" @ %scoreLimit @ " <f1>total caps wins.\n\n";
         if ($Server::Half == 2) {
             %scoreboard = %scoreboard @ "<f1>Match forces in 5 seconds. Please stand by...";
             schedule('Game::ForceTourneyMatchStart();', 5);
@@ -1077,4 +1080,44 @@ function Game::SwapPlayer(%clientId)
     %clientId.notready = true;
   }
   
+}
+
+function Game::BodyBlockCheck()
+{
+    
+    if(!$BodyBlock::Enabled) { return; }
+    
+    //if we in a pause, back out and try again in 1 second
+    if ($freezedata::actice == 1) {
+        schedule("Game::BodyBlockCheck();", 1);
+        return;
+    }
+    
+    //only look for player loc if the match has begun
+    if ($matchStarted) {
+        
+        //cycle through clients checking to see if their distance falls within the flag zone
+        for(%cl = Client::getFirst(); %cl != -1; %cl = Client::getNext(%cl)) {
+            %clTeam = Client::getTeam(%cl);
+            if (%clTeam == 0 || %clTeam == 1) {
+                %otherTeam = (%clTeam + 1) % 2; //if 0 returns 1, if 1 returns 0.
+            
+                //check to see if we are in the process of calculating a BB first
+                if (!$BodyBlock::Calculate[%cl]) {
+                
+                    //find speed
+                    $BodyBlock::Speed[%cl] = Game::BodyBlockDistance(%cl, %otherTeam);
+                }
+            }
+        }
+    }
+    schedule("Game::BodyBlockCheck();", 1);
+}
+
+function Game::BodyBlockDistance(%cl, %otherTeam)
+{
+    
+    %playerVelocity = Item::getVelocity(%cl);
+    %playerSpeed = Vector::getDistance(%playerVelocity, "0 0 0");
+    return %playerSpeed;
 }

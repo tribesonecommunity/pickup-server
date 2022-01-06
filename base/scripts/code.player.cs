@@ -16,7 +16,9 @@ $PlayerAnim::DieBack = 37;
 //----------------------------------------------------------------------------
 //
 $Collector::DamageEnabled = true;
+$BodyBlock::Enabled = true;
 $CorpseTimeoutValue = 15;
+$BodyBlock::Prevent = 0;
 //
 //----------------------------------------------------------------------------
 //
@@ -111,6 +113,7 @@ function Player::onDamage(%this,%type,%value,%pos,%vec,%mom,%vertPos,%quadrant,%
     
     //Set flag is this is a team damage event
     %teamDamageOccured = 0;
+    %teamDamageActive = 0;
     if(Client::getTeam(%damagedClient) == Client::getTeam(%shooterClient)) { %teamDamageOccured = 1; }
 
         if (%type == $BulletDamageType)
@@ -129,6 +132,7 @@ function Player::onDamage(%this,%type,%value,%pos,%vec,%mom,%vertPos,%quadrant,%
                         Client::sendMessage(%shooterClient,0,"You just harmed Teammate " @ Client::getName(%damagedClient) @ " with your mine!");
                         Client::sendMessage(%damagedClient,0,"You just stepped on Teamate " @ Client::getName(%shooterClient) @ "'s mine!");
                     }
+                    %teamDamageActive = 1;
                     %this.LastHarm = %shooterClient;
                     %this.DamageStamp = %curTime;
                 }
@@ -244,7 +248,7 @@ function Player::onDamage(%this,%type,%value,%pos,%vec,%mom,%vertPos,%quadrant,%
         }
         
         //handle damage events here - ignoring all team dealt damage / self damage
-        if (%teamDamageOccured == 0) {
+        if ($Collector::DamageEnabled && %teamDamageOccured == 0) {
             
             
             %newValue = (%value * 150);
@@ -265,14 +269,36 @@ function Player::onDamage(%this,%type,%value,%pos,%vec,%mom,%vertPos,%quadrant,%
                 //MessageAll(0, "New Damage Dealt: " @ %newValue);
             }
             
-            if ($Collector::DamageEnabled) {
-                
-                $DmgTracker::DamageOut[%shooterClient] += %newValue;
-                $DmgTracker::DamageIn[%damagedClient] += %newValue;
-                
-                //zadmin::ActiveMessage::All( DamageDealt, %shooterClient, %damagedClient, %newValue );
-            }
+            $DmgTracker::DamageOut[%shooterClient] += %newValue;
+            $DmgTracker::DamageIn[%damagedClient] += %newValue;
+              
         }
+        
+        else if ($Collector::DamageEnabled && %teamDamageActive == 1) {
+            
+            %newValue = (%value * 150);
+            %newRemainder = (%newValue - floor(%newValue));
+            
+            if (%newRemainder >= 0.5) {
+                %newValue = floor((%newValue + 1));
+            }
+            else {
+                %newValue = floor(%newValue);
+            }
+            
+            if (%spillOver < 0) {
+                //MessageAll(0, "Damage Dealt: " @ %newValue);
+            }
+            else {
+                %newValue = (1+(%newValue - floor(%spillOver * 150)));
+                //MessageAll(0, "New Damage Dealt: " @ %newValue);
+            }
+            
+            $DmgTracker::TeamDamageOut[%shooterClient] += %newValue;
+            $DmgTracker::TeamDamageIn[%damagedClient] += %newValue;
+
+        }
+        else { }
     }
 }
 
@@ -302,6 +328,86 @@ function Player::onCollision(%this,%object)
                 // Play pickup if we gave him anything
                 playSound(SoundPickupItem,GameBase::getPosition(%this));
             }
+        }
+    }
+    else {
+        
+        if (!$BodyBlock::Enabled) { return; }
+        
+        $bbThis = %this;
+        $bbObject = %object;
+        
+        $bbVictim0 = Player::getClient($bbThis);
+        $bbVictim1 = Player::getClient($bbObject);
+        
+        MessageAll(0, "BBVictim0: " @ $bbVictim0);
+        MessageAll(0, "BBVictim1: " @ $bbVictim1);
+
+        //confirm both collision items are infact players
+        if ( (getObjectType($bbThis) == "Player") && (getObjectType($bbObject) == "Player") ) {
+            
+            //this prevents a dead corpse case
+            if ($bbVictim0 == -1 || $bbVictim1 == -1) { return; }
+            
+            $bbV0Team = Client::getTeam($bbVictim0);
+            $bbV1Team = Client::getTeam($bbVictim1);
+
+            // do not count teammate bodyblocks
+            if ($bbV0Team == $bbV1Team) { return; }
+
+            //prevent double collision
+            if ($BodyBlock::Prevent == 0) {
+                $BodyBlock::Prevent = 1;
+                return;
+            }
+            else if ($BodyBlock::Prevent == 1) {
+                $BodyBlock::Prevent = 0;
+            }
+            else { }
+
+            // get client IDs
+            
+            //STOP calculating player speed while we check for a BB
+            $BodyBlock::Calculate[$bbVictim0] = true;
+            $BodyBlock::Calculate[$bbVictim1] = true;
+            
+            //after this - get speed of both players
+            %tempSpeedV0 = Game::BodyBlockDistance($bbVictim0, $bbV1Team);
+            %tempSpeedV1 = Game::BodyBlockDistance($bbVictim1, $bbV0Team);
+            
+            %diffSpeedV0 = ($BodyBlock::Speed[$bbVictim0] - %tempSpeedV0);
+            %diffSpeedV1 = ($BodyBlock::Speed[$bbVictim1] - %tempSpeedV1);
+            
+            //in the event the speed of the player is increased after a collision
+            if (%diffSpeedV0 < 0) { %diffSpeedV0 = 0; }
+            if (%diffSpeedV1 < 0) { %diffSpeedV1 = 0; }
+            
+            MessageAll(0, "oldSpeedV0: " @ $BodyBlock::Speed[$bbVictim0]);
+            MessageAll(0, "newSpeedV0: " @ %tempSpeedV0);
+            
+            MessageAll(0, "oldSpeedV1: " @ $BodyBlock::Speed[$bbVictim1]);
+            MessageAll(0, "newSpeedV1: " @ %tempSpeedV1);
+            
+            
+            // V0 lost more speed, V1 gets the BB
+            if ( %diffSpeedV0 > %diffSpeedV1 ) {
+                  
+                zadmin::ActiveMessage::All( BodyBlock, $bbVictim1, $bbVictim0 );
+                    
+            }
+
+            // V1 lost more speed, V0 gets the BB
+            else if ( %diffSpeedV1 > %diffSpeedV0 ) {
+                  
+                zadmin::ActiveMessage::All( BodyBlock, $bbVictim0, $bbVictim1 );
+                    
+            }
+            else { }
+            
+            //BEGIN calculating player position to flags again
+            $BodyBlock::Calculate[$bbVictim0] = false;
+            $BodyBlock::Calculate[$bbVictim1] = false;
+            
         }
     }
 }

@@ -374,6 +374,9 @@ function displayMenuServerToggles(%cl)
     addLine("Enable Damage Tracking", "yesdamage", (%cl.canChangeGameMode && !$Collector::DamageEnabled), %cl);
     addLine("Disable Damage Tracking", "nodamage", (%cl.canChangeGameMode && $Collector::DamageEnabled), %cl);
     
+    addLine("Enable BB Tracking", "yesbodyblock", (%cl.canChangeGameMode && !$BodyBlock::Enabled), %cl);
+    addLine("Disable BB Tracking", "nobodyblock", (%cl.canChangeGameMode && $BodyBlock::Enabled), %cl);
+    
     addLine("Back...", "adminmenu", (%cl.adminLevel > 0), %cl);
 
 }
@@ -428,6 +431,16 @@ function processMenuServerTogglesMenu(%cl, %sel)
     else if (%sel == "nodamage") {
         $Collector::DamageEnabled = false;
         messageAll(0, "Damage tracking has been DISABLED by an Admin.");
+    }
+    
+    if (%sel == "yesbodyblock") {
+        $BodyBlock::Enabled = true;
+        messageAll(0, "BB tracking has been ENABLED by an Admin.");
+        Game::BodyBlockCheck();
+    }
+    else if (%sel == "nobodyblock") {
+        $BodyBlock::Enabled = false;
+        messageAll(0, "BB tracking has been DISABLED by an Admin.");
     }
 
     Game::menuRequest(%cl);
@@ -1438,7 +1451,9 @@ function aActionsetModeTourney(%clientId)
          if($zadmin::pref::log::GameModeChanges) logEntry(%clientId, "switched to Tournament Mode.", "");
 
       }
-      
+        // turn practice mode off when switched to tourney
+        $PracticeMode::TrainingMode = false;
+        
         $Server::TourneyMode = true;
         $Server::manualTourney = true;
         $Server::Half = 0;

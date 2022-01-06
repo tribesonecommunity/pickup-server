@@ -219,9 +219,13 @@ function Game::checkTimeLimit()
         for(%cl = Client::getFirst(); %cl != -1; %cl = Client::getNext(%cl)) {
             
             zadmin::ActiveMessage::All( DamageDealt, %cl, 0, $DmgTracker::DamageOut[%cl] );
+            zadmin::ActiveMessage::All( TeamDamageDealt, %cl, 0, $DmgTracker::TeamDamageOut[%cl] );
             $DmgTracker::DamageOut[%cl] = 0;
+            $DmgTracker::TeamDamageOut[%cl] = 0;
             zadmin::ActiveMessage::All( DamageDealt, 0, %cl, $DmgTracker::DamageIn[%cl] );
+            zadmin::ActiveMessage::All( TeamDamageDealt, 0, %cl, $DmgTracker::TeamDamageIn[%cl] );
             $DmgTracker::DamageIn[%cl] = 0;
+            $DmgTracker::TeamDamageIn[%cl] = 0;
         }
       }
 
