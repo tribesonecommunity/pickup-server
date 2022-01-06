@@ -339,9 +339,6 @@ function Player::onCollision(%this,%object)
         
         $bbVictim0 = Player::getClient($bbThis);
         $bbVictim1 = Player::getClient($bbObject);
-        
-        MessageAll(0, "BBVictim0: " @ $bbVictim0);
-        MessageAll(0, "BBVictim1: " @ $bbVictim1);
 
         //confirm both collision items are infact players
         if ( (getObjectType($bbThis) == "Player") && (getObjectType($bbObject) == "Player") ) {
@@ -381,13 +378,6 @@ function Player::onCollision(%this,%object)
             //in the event the speed of the player is increased after a collision
             if (%diffSpeedV0 < 0) { %diffSpeedV0 = 0; }
             if (%diffSpeedV1 < 0) { %diffSpeedV1 = 0; }
-            
-            MessageAll(0, "oldSpeedV0: " @ $BodyBlock::Speed[$bbVictim0]);
-            MessageAll(0, "newSpeedV0: " @ %tempSpeedV0);
-            
-            MessageAll(0, "oldSpeedV1: " @ $BodyBlock::Speed[$bbVictim1]);
-            MessageAll(0, "newSpeedV1: " @ %tempSpeedV1);
-            
             
             // V0 lost more speed, V1 gets the BB
             if ( %diffSpeedV0 > %diffSpeedV1 ) {
