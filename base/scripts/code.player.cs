@@ -380,14 +380,16 @@ function Player::onCollision(%this,%object)
             if (%diffSpeedV1 < 0) { %diffSpeedV1 = 0; }
             
             // V0 lost more speed, V1 gets the BB
-            if ( %diffSpeedV0 > %diffSpeedV1 ) {
+            // speed of BB'd player needs to be faster than walking speed
+            if ( (%diffSpeedV0 > %diffSpeedV1) && ($BodyBlock::Speed[$bbVictim0] > 11) ) {
                   
                 zadmin::ActiveMessage::All( BodyBlock, $bbVictim1, $bbVictim0 );
                     
             }
 
             // V1 lost more speed, V0 gets the BB
-            else if ( %diffSpeedV1 > %diffSpeedV0 ) {
+            // speed of BB'd player needs to be faster than walking speed
+            else if ( (%diffSpeedV1 > %diffSpeedV0) && ($BodyBlock::Speed[$bbVictim1] > 11) ) {
                   
                 zadmin::ActiveMessage::All( BodyBlock, $bbVictim0, $bbVictim1 );
                     
