@@ -254,19 +254,16 @@ function displayMenuAdminMenu(%cl)
     addLine("Admin options...", "serverToggles", !$freezedata::actice, %cl);
     addLine("Vote options...", "voteOptions", !$freezedata::actice, %cl);
     
-    //normally you would do for loop to get num of teams but we dont care here
-    
     %curTimePause = floor(($Server::timeLimit * 60) + $missionStartTime - getSimTime());
     
     addLine("==========", "", (%cl.canForceMatchStart && %tModeWaiting && !$loadingMission && $Server::Half != 2), %cl);
     addLine("START GAME", "smatch", (%cl.canForceMatchStart && %tModeWaiting && !$loadingMission && $Server::Half != 2), %cl);
     addLine("==========", "", (%cl.canForceMatchStart && %tModeWaiting && !$loadingMission && $Server::Half != 2), %cl);
     
-    if (($FlagIsDropped[0] || $FlagIsDropped[1]) || ($matchStarted && %curTimePause <= 120 && !$freezedata::actice)) {
-        addLine("===================", "", %cl.canPermanentBan, %cl);
-        addLine("PAUSE NOT AVAILABLE", "", %cl.canPermanentBan, %cl);
-        addLine("===================", "", %cl.canPermanentBan, %cl);
-        
+    if (($FlagIsDropped[0] || $FlagIsDropped[1]) || ($matchStarted && %curTimePause <= 120 && !$freezedata::actice) || ($freeze::OOB[0] || $freeze::OOB[1])) {
+            addLine("===================", "", %cl.canPermanentBan, %cl);
+            addLine("PAUSE NOT AVAILABLE", "", %cl.canPermanentBan, %cl);
+            addLine("===================", "", %cl.canPermanentBan, %cl);
     }
     else {
         if (!$freezedata::actice && $matchStarted && %curTimePause > 120 && !$loadingMission) {
@@ -374,6 +371,9 @@ function displayMenuServerToggles(%cl)
     addLine("Enable Anti-Scum", "yesantiscum", (%cl.canChangeGameMode && !$AntiScum::ENABLED), %cl);
     addLine("Disable Anti-Scum", "noantiscum", (%cl.canChangeGameMode && $AntiScum::ENABLED), %cl);
     
+    addLine("Enable Damage Tracking", "yesdamage", (%cl.canChangeGameMode && !$Collector::DamageEnabled), %cl);
+    addLine("Disable Damage Tracking", "nodamage", (%cl.canChangeGameMode && $Collector::DamageEnabled), %cl);
+    
     addLine("Back...", "adminmenu", (%cl.adminLevel > 0), %cl);
 
 }
@@ -399,7 +399,7 @@ function processMenuServerTogglesMenu(%cl, %sel)
     else if (%sel == "nobalance") {
         $Server::BalancedMode = 0;
         messageAll(0, "Balanced Mode has been DISABLED by an Admin.");
-        $Server::Half = 1;
+        $Server::Half = 0;
         Server::BalancedModeTime(false);
     }
     
@@ -419,6 +419,15 @@ function processMenuServerTogglesMenu(%cl, %sel)
     else if (%sel == "noantiscum") {
         $AntiScum::ENABLED = false;
         messageAll(0, "Anti-scum has been DISABLED by an Admin.");
+    }
+    
+    if (%sel == "yesdamage") {
+        $Collector::DamageEnabled = true;
+        messageAll(0, "Damage tracking has been ENABLED by an Admin.");
+    }
+    else if (%sel == "nodamage") {
+        $Collector::DamageEnabled = false;
+        messageAll(0, "Damage tracking has been DISABLED by an Admin.");
     }
 
     Game::menuRequest(%cl);
@@ -709,6 +718,8 @@ function displayMenuChangeTeamsMenu(%cl, %opt)
             
             //match has not yet started, observer switch should still work here
             addLine("Observer", -2, true, %cl);
+            //re-adding Automatic
+            addLine("Automatic", -1, true, %cl);
         }
     }
     else {
@@ -1401,7 +1412,7 @@ function aActionsetModeFFA(%clientId)
       }
       
       $Server::TourneyMode = false;
-      $Server::Half = 1;
+      $Server::Half = 0;
       centerprintall(); // clear the messages
       Server::BalancedModeTime(false);
       
