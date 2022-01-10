@@ -36,3 +36,4 @@ function Player::ObstructionsBelow(%pl, %distance)
     }
     return (false);
 }
+

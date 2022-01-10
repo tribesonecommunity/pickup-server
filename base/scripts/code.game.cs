@@ -373,6 +373,8 @@ function Game::playerSpawned(%pl, %clientId, %armor)
         Player::useItem(%pl,%clientId.spawnWeapon);
         %clientId.spawnWeapon = "";
     }
+    
+    $PlayerHasSpawned[%clientId] = true;
 }
 
 function Game::autoRespawn(%client)
@@ -749,6 +751,7 @@ function Client::onKilled(%playerId, %killerId, %damageType)
         %playerId.scoreDeaths++;
         %playerId.Deaths++;
         
+        
         //LETS SET A GLOBAL COUNTER FOR SUICIDES AND BUILD A RATE THAT IS ACCURATE FOR CHECKING TIME
         //THIS IS BECAUSE SUICIDES ARE A GIVEN IN THE WORLD OF TRIBE
         
@@ -847,16 +850,19 @@ function Client::onKilled(%playerId, %killerId, %damageType)
             Client::refreshScore(%killerId);
         }
     }
+    
+    //cant have speed if you're dead
+    $BodyBlock::Speed[%playerId] = 0;
+    
+    $PlayerHasSpawned[%playerId] = false;
 
     Game::clientKilled(%playerId, %killerId);
-
-    //active messaging
-    //if (Client::getName(%killerId) != "")
     
     zadmin::ActiveMessage::All(KillTrak, %killerId, %playerId, $zadmin::WeaponName[%damageType]);
 
-    %killerTeam = Client::GetTeam(%killerId);
-    %victimTeam = Client::GetTeam(%playerId);
+    //No longer needed?
+    //%killerTeam = Client::GetTeam(%killerId);
+    //%victimTeam = Client::GetTeam(%playerId);
 
     %now = getSimTime();
     %killerId.lastActiveTimestamp = %now;
@@ -1093,20 +1099,20 @@ function Game::BodyBlockCheck()
         return;
     }
     
-    //only look for player loc if the match has begun
+    //only look for player speed if the match has begun
     if ($matchStarted) {
         
-        //cycle through clients checking to see if their distance falls within the flag zone
+        //cycle through clients
         for(%cl = Client::getFirst(); %cl != -1; %cl = Client::getNext(%cl)) {
-            %clTeam = Client::getTeam(%cl);
-            if (%clTeam == 0 || %clTeam == 1) {
-                %otherTeam = (%clTeam + 1) % 2; //if 0 returns 1, if 1 returns 0.
-            
-                //check to see if we are in the process of calculating a BB first
-                if (!$BodyBlock::Calculate[%cl]) {
-                
-                    //find speed
-                    $BodyBlock::Speed[%cl] = Game::BodyBlockDistance(%cl, %otherTeam);
+            if ($PlayerHasSpawned[%cl]) {
+                %clTeam = Client::getTeam(%cl);
+                if (%clTeam == 0 || %clTeam == 1) {
+                    %otherTeam = (%clTeam + 1) % 2; //if 0 returns 1, if 1 returns 0.
+                    //check to see if we are in the process of calculating a BB first
+                    if (!$BodyBlock::Calculate[%cl]) {
+                        //find speed
+                        $BodyBlock::Speed[%cl] = Game::BodyBlockDistance(%cl, %otherTeam);
+                    }
                 }
             }
         }
@@ -1116,7 +1122,6 @@ function Game::BodyBlockCheck()
 
 function Game::BodyBlockDistance(%cl, %otherTeam)
 {
-    
     %playerVelocity = Item::getVelocity(%cl);
     %playerSpeed = Vector::getDistance(%playerVelocity, "0 0 0");
     return %playerSpeed;
