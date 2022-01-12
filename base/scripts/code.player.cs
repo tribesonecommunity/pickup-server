@@ -115,8 +115,7 @@ function Player::onDamage(%this,%type,%value,%pos,%vec,%mom,%vertPos,%quadrant,%
         //Set flag is this is a team damage event
         %teamDamageOccured = 0;
 
-        if (%type == $BulletDamageType)
-        Client::sendMessage(%shooterClient,0,"~whit.wav");
+        
 
         Player::applyImpulse(%this,%mom);
         if($teamplay && %damagedClient != %shooterClient && Client::getTeam(%damagedClient) == Client::getTeam(%shooterClient) ) {
@@ -281,6 +280,13 @@ function Player::onDamage(%this,%type,%value,%pos,%vec,%mom,%vertPos,%quadrant,%
 
         }
         else { }
+    }
+    
+    if ( (%type == $BulletDamageType) && (%teamDamageOccured == 0) ) {
+        
+            %shooterTeam = Client::getTeam(%shooterClient);
+            Client::sendMessage(%shooterClient,0,"~whit.wav");
+            zadmin::ActiveMessage::All( HitCG, %shooterClient, %shooterTeam );
     }
 }
 
