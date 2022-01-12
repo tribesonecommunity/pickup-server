@@ -1012,6 +1012,7 @@ function displayMenuChangeTimeLimit(%cl)
     
     addLine("5 minutes", 5, true, %cl);
     addLine("10 minutes", 10, true, %cl);
+    addLine("12 minutes", 12, true, %cl);
     addLine("15 minutes", 15, true, %cl);
     addLine("20 minutes", 20, true, %cl);
     addLine("25 minutes", 25, true, %cl);
