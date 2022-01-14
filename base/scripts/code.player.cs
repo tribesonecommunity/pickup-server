@@ -351,8 +351,8 @@ function Player::onCollision(%this,%object)
             $BodyBlock::Calculate[%bbVictim1] = true;
             
             //after this - get speed of both players - right now
-            %tempSpeedV0 = Game::BodyBlockDistance(%bbVictim0, %bbV1Team);
-            %tempSpeedV1 = Game::BodyBlockDistance(%bbVictim1, %bbV0Team);
+            %tempSpeedV0 = Game::getPlayerSpeed(%bbVictim0);
+            %tempSpeedV1 = Game::getPlayerSpeed(%bbVictim1);
             
             // (old speed - new speed) difference
             %diffSpeedV0 = ($BodyBlock::Speed[%bbVictim0] - %tempSpeedV0);
