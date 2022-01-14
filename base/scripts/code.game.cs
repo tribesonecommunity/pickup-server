@@ -230,6 +230,7 @@ function Game::startMatch()
     zadmin::AFKDaemon();
     
     //begin checking player positions for body blocks
+    //$BodyBlock::Init = false;
     Game::BodyBlockCheck();
 }
 
@@ -446,23 +447,6 @@ function onServerGhostAlwaysDone()
                     %clientId.justConnected = "";
                 }
                 
-                //remove automatic option in tourney mode
-                //if(!$Server::TourneyMode) {
-                    
-                    //Client::addMenuItem(%clientId, "1Automatic", -1);
-                    
-                    //for(%i = 0; %i < getNumTeams(); %i = %i + 1)
-                        //Client::addMenuItem(%clientId, (%i+2) @ getTeamName(%i), %i);
-                        //%clientId.justConnected = "";
-                    
-                //}
-                //else {
-                
-                    //for(%i = 0; %i < getNumTeams(); %i = %i + 1)
-                        //Client::addMenuItem(%clientId, (%i+1) @ getTeamName(%i), %i);
-                        //%clientId.justConnected = "";
-                    
-                //}
         }
         else {
             Client::setSkin(%clientId, $Server::teamSkin[Client::getTeam(%clientId)]);
@@ -526,6 +510,7 @@ function processMenuInitialPickTeam(%clientId, %team)
       %clientId.notreadyCount = "";
     }
   }
+  //$BodyBlock::Init = false;
 }
 
 function Game::ForceTourneyMatchStart()
@@ -1098,20 +1083,50 @@ function Game::BodyBlockCheck()
         schedule("Game::BodyBlockCheck();", 1);
         return;
     }
+
+    //set bodyblock init to false in the admin menu team change of any kind
     
+    //if(!$BodyBlock::Init) {
+        //$BodyBlock::Init = true;
+        //$BBClient::Count = 0;
+        //for(%cl = Client::getFirst(); %cl != -1; %cl = Client::getNext(%cl)) {
+            //%clTeam = Client::getTeam(%cl);
+            //if (%clTeam == 0 || %clTeam == 1) {
+               //$BBClient::Player[$BBClient::Count] = %cl;
+               //$BBClient::Count++;
+            //}
+        //}
+    //}
     //only look for player speed if the match has begun
     if ($matchStarted) {
         
-        //cycle through clients
+        //for(%i=0; %i < $BBClient::Count; %i++) {
+            
+            //%cl = $BBClient::Player[%i];
+            
+            //if (!$BodyBlock::Calculate[%cl]) {
+                //if ($PlayerHasSpawned[%cl]) {
+                    //%clTeam = Client::getTeam(%cl);
+                    //if (%clTeam == 0 || %clTeam == 1) {
+                        //%otherTeam = (%clTeam + 1) % 2;
+                        //$BodyBlock::Speed[%cl] = Game::getPlayerSpeed(%cl);
+                    //}
+                //}
+            //}
+        //}
+        
+        //cycle through clients - old way
         for(%cl = Client::getFirst(); %cl != -1; %cl = Client::getNext(%cl)) {
-            if ($PlayerHasSpawned[%cl]) {
-                %clTeam = Client::getTeam(%cl);
-                if (%clTeam == 0 || %clTeam == 1) {
-                    %otherTeam = (%clTeam + 1) % 2; //if 0 returns 1, if 1 returns 0.
-                    //check to see if we are in the process of calculating a BB first
-                    if (!$BodyBlock::Calculate[%cl]) {
+            //check to see if we are in the process of calculating a BB first
+            if (!$BodyBlock::Calculate[%cl]) {
+                if ($PlayerHasSpawned[%cl]) {
+                    %clTeam = Client::getTeam(%cl);
+                    if (%clTeam == 0 || %clTeam == 1) {
+                        
+                        %otherTeam = (%clTeam + 1) % 2; //if 0 returns 1, if 1 returns 0.
                         //find speed
-                        $BodyBlock::Speed[%cl] = Game::BodyBlockDistance(%cl, %otherTeam);
+                        $BodyBlock::Speed[%cl] = Game::getPlayerSpeed(%cl);
+                        
                     }
                 }
             }
@@ -1120,7 +1135,7 @@ function Game::BodyBlockCheck()
     schedule("Game::BodyBlockCheck();", 1);
 }
 
-function Game::BodyBlockDistance(%cl, %otherTeam)
+function Game::getPlayerSpeed(%cl)
 {
     %playerVelocity = Item::getVelocity(%cl);
     %playerSpeed = Vector::getDistance(%playerVelocity, "0 0 0");
