@@ -219,9 +219,13 @@ function Game::checkTimeLimit()
         for(%cl = Client::getFirst(); %cl != -1; %cl = Client::getNext(%cl)) {
             
             zadmin::ActiveMessage::All( DamageDealt, %cl, 0, $DmgTracker::DamageOut[%cl] );
+            zadmin::ActiveMessage::All( TeamDamageDealt, %cl, 0, $DmgTracker::TeamDamageOut[%cl] );
             $DmgTracker::DamageOut[%cl] = 0;
+            $DmgTracker::TeamDamageOut[%cl] = 0;
             zadmin::ActiveMessage::All( DamageDealt, 0, %cl, $DmgTracker::DamageIn[%cl] );
+            zadmin::ActiveMessage::All( TeamDamageDealt, 0, %cl, $DmgTracker::TeamDamageIn[%cl] );
             $DmgTracker::DamageIn[%cl] = 0;
+            $DmgTracker::TeamDamageIn[%cl] = 0;
         }
       }
 
@@ -862,7 +866,6 @@ function Flag::onDrop(%player, %type)
  }
  else
  {
-  //%flag = AntiSkip::RestoreFlag(%flagTeam);
 
   MessageAllExcept(%playerClient, 0, %dropClientName @ " dropped the " @ getTeamName(%flagTeam) @ " flag!");
   Client::sendMessage(%playerClient, 0, "You dropped the " @ getTeamName(%flagTeam) @ " flag!");
@@ -883,11 +886,8 @@ function Flag::onDrop(%player, %type)
  %player.carryFlag = "";
  Flag::clearWaypoint(%playerClient, false);
 
- // TODO(opsayo) - untested change
  $FlagIsDropped[%flagTeam] = true;
- 
  $freeze::OOB[%flagTeam] = false;
- 
  $freeze::FlagClient[%flagTeam] = 0;
 
  schedule("Flag::checkReturn(" @ %flag @ ", " @ %flag.pickupSequence @ ");", $flagReturnTime);
@@ -932,7 +932,7 @@ function Flag::onCollision(%this, %object)
       $freeze::OOB[%flagTeam] = false;
       
       $freeze::FlagClient[%flagTeam] = 0;
-
+      
       MessageAllExcept(%playerClient, 0, %touchClientName @ " returned the " @ getTeamName(%playerTeam) @ " flag!~wflagreturn.wav");
       Client::sendMessage(%playerClient, 0, "You returned the " @ getTeamName(%playerTeam) @ " flag!~wflagreturn.wav");
       teamMessages(1, %playerTeam, "Your flag was returned to base.", -2, "", "The " @ getTeamName(%playerTeam) @ " flag was returned to base.");
@@ -947,6 +947,15 @@ function Flag::onCollision(%this, %object)
 
       //active code
       zadmin::ActiveMessage::All(FlagReturned, %flagTeam, %playerClient);
+      
+      //midair return stat
+      if(!Player::ObstructionsBelow(%playerClient, $Game::Midair::Height))
+        {
+
+            zadmin::ActiveMessage::All(FlagInterception, %flagTeam, %playerClient);
+            
+        }
+
     }
     else
     {
@@ -977,9 +986,6 @@ function Flag::onCollision(%this, %object)
           $freeze::OOB[%flagTeam] = false;
 
           Item::hide(%flag, false);
-          
-          //dont think this is needed anymore
-          //$flagAtHome[1] = true;
           
           GameBase::setPosition(%flag, %flag.originalPosition);
           Item::setVelocity(%flag, "0 0 0");
@@ -1051,6 +1057,15 @@ function Flag::onCollision(%this, %object)
 
       //active code
       zadmin::ActiveMessage::All(FlagTaken, %flagTeam, %playerClient);
+      
+      //midair flag catch
+      if(!Player::ObstructionsBelow(%playerClient, $Game::Midair::Height))
+        {
+
+            zadmin::ActiveMessage::All(FlagCatch, %flagTeam, %playerClient);
+            
+        }
+
       if (%atHome)
         Client::onFlagGrab(%flagTeam, %playerClient);
       else

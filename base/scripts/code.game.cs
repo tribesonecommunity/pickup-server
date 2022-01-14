@@ -1,7 +1,7 @@
 exec("code.chat.cs");
 
 //suicide multiplier, greater the number less frequent time checks
-$SuicideMult = 0.6;
+$SuicideMult = 0.5;
 
 function remotePlayMode(%clientId)
 {
@@ -228,6 +228,10 @@ function Game::startMatch()
     zadmin::ActiveMessage::All(TeamScore, 1, 0);
     zadmin::ActiveMessage::All(MatchStarted);
     zadmin::AFKDaemon();
+    
+    //begin checking player positions for body blocks
+    //$BodyBlock::Init = false;
+    Game::BodyBlockCheck();
 }
 
 // Kinda like startMatch, but without resetting scores.
@@ -370,6 +374,8 @@ function Game::playerSpawned(%pl, %clientId, %armor)
         Player::useItem(%pl,%clientId.spawnWeapon);
         %clientId.spawnWeapon = "";
     }
+    
+    $PlayerHasSpawned[%clientId] = true;
 }
 
 function Game::autoRespawn(%client)
@@ -441,23 +447,6 @@ function onServerGhostAlwaysDone()
                     %clientId.justConnected = "";
                 }
                 
-                //remove automatic option in tourney mode
-                //if(!$Server::TourneyMode) {
-                    
-                    //Client::addMenuItem(%clientId, "1Automatic", -1);
-                    
-                    //for(%i = 0; %i < getNumTeams(); %i = %i + 1)
-                        //Client::addMenuItem(%clientId, (%i+2) @ getTeamName(%i), %i);
-                        //%clientId.justConnected = "";
-                    
-                //}
-                //else {
-                
-                    //for(%i = 0; %i < getNumTeams(); %i = %i + 1)
-                        //Client::addMenuItem(%clientId, (%i+1) @ getTeamName(%i), %i);
-                        //%clientId.justConnected = "";
-                    
-                //}
         }
         else {
             Client::setSkin(%clientId, $Server::teamSkin[Client::getTeam(%clientId)]);
@@ -521,6 +510,7 @@ function processMenuInitialPickTeam(%clientId, %team)
       %clientId.notreadyCount = "";
     }
   }
+  //$BodyBlock::Init = false;
 }
 
 function Game::ForceTourneyMatchStart()
@@ -746,6 +736,7 @@ function Client::onKilled(%playerId, %killerId, %damageType)
         %playerId.scoreDeaths++;
         %playerId.Deaths++;
         
+        
         //LETS SET A GLOBAL COUNTER FOR SUICIDES AND BUILD A RATE THAT IS ACCURATE FOR CHECKING TIME
         //THIS IS BECAUSE SUICIDES ARE A GIVEN IN THE WORLD OF TRIBE
         
@@ -844,16 +835,19 @@ function Client::onKilled(%playerId, %killerId, %damageType)
             Client::refreshScore(%killerId);
         }
     }
+    
+    //cant have speed if you're dead
+    $BodyBlock::Speed[%playerId] = 0;
+    
+    $PlayerHasSpawned[%playerId] = false;
 
     Game::clientKilled(%playerId, %killerId);
-
-    //active messaging
-    //if (Client::getName(%killerId) != "")
     
     zadmin::ActiveMessage::All(KillTrak, %killerId, %playerId, $zadmin::WeaponName[%damageType]);
 
-    %killerTeam = Client::GetTeam(%killerId);
-    %victimTeam = Client::GetTeam(%playerId);
+    //No longer needed?
+    //%killerTeam = Client::GetTeam(%killerId);
+    //%victimTeam = Client::GetTeam(%playerId);
 
     %now = getSimTime();
     %killerId.lastActiveTimestamp = %now;
@@ -960,8 +954,8 @@ function Game::DisplayReadyMessage(%client)
   {
     %scoreLimit = $teamScoreLimit * $Server::Half - $Server::Half;
     %scoreboard = "<jc>" @ "<f1>The game is set to <f2>BALANCED MODE\n" @
-                  "<f1>Teams will switch sides at <f2>" @ %scoreLimit @ " <f1>total caps\n" @
-                  "<f1>First team to <f2>" @ $teamScoreLimit @ " <f1>wins\n\n";
+                  "<f1>Teams will switch sides at <f2>" @ %scoreLimit @ " <f1>total caps\n";
+                  //"<f1>First team to <f2>" @ $teamScoreLimit @ " <f1>wins\n\n";
     %scoreboard = %scoreboard @ "<f1>Press FIRE when ready.";
     CenterPrint(%client, %scoreboard, 0);
   }
@@ -979,8 +973,8 @@ function Game::DisplayHalfScoreboard()
         %scoreboard = "<jc>" @ "<f1>First half duration: <f2>" @ $halftimeMins @ " <f1>minutes <f2>" @ $halftimeSecs @ " <f1>seconds.\n\n" @
                 "<f2>Scores at halftime:\n" @
                 "<f1>" @ getTeamName(0) @ ": <f2>" @ $teamScore[0] @ "\n" @
-                "<f1>" @ getTeamName(1) @ ": <f2>" @ $teamScore[1] @ "\n\n" @
-                "<f1> First team to <f2>" @ $teamScoreLimit @ " <f1>wins.\n\n";
+                "<f1>" @ getTeamName(1) @ ": <f2>" @ $teamScore[1] @ "\n\n";
+                //"<f1> First team to <f2>" @ $teamScoreLimit @ " <f1>wins.\n\n";
         if ($Server::Half == 2) {
             %scoreboard = %scoreboard @ "<f1>Match forces in 5 seconds. Please stand by...";
             schedule('Game::ForceTourneyMatchStart();', 5);
@@ -991,8 +985,8 @@ function Game::DisplayHalfScoreboard()
         %scoreboard = "<jc>" @ "<f1>First half duration: <f2>" @ $halftimeMins @ " <f1>minutes <f2>" @ $halftimeSecs @ " <f1>seconds.\n\n" @
                 "<f2>Scores at halftime:\n" @
                 "<f1>" @ getTeamName(0) @ ": <f2>" @ $teamScore[0] @ "\n" @
-                "<f1>" @ getTeamName(1) @ ": <f2>" @ $teamScore[1] @ "\n\n" @
-                "<f1> First team to <f2>" @ %scoreLimit @ " <f1>total caps wins.\n\n";
+                "<f1>" @ getTeamName(1) @ ": <f2>" @ $teamScore[1] @ "\n\n";
+                //"<f1> First team to <f2>" @ %scoreLimit @ " <f1>total caps wins.\n\n";
         if ($Server::Half == 2) {
             %scoreboard = %scoreboard @ "<f1>Match forces in 5 seconds. Please stand by...";
             schedule('Game::ForceTourneyMatchStart();', 5);
@@ -1077,4 +1071,73 @@ function Game::SwapPlayer(%clientId)
     %clientId.notready = true;
   }
   
+}
+
+function Game::BodyBlockCheck()
+{
+    
+    if(!$BodyBlock::Enabled) { return; }
+    
+    //if we in a pause, back out and try again in 1 second
+    if ($freezedata::actice == 1) {
+        schedule("Game::BodyBlockCheck();", 1);
+        return;
+    }
+
+    //set bodyblock init to false in the admin menu team change of any kind
+    
+    //if(!$BodyBlock::Init) {
+        //$BodyBlock::Init = true;
+        //$BBClient::Count = 0;
+        //for(%cl = Client::getFirst(); %cl != -1; %cl = Client::getNext(%cl)) {
+            //%clTeam = Client::getTeam(%cl);
+            //if (%clTeam == 0 || %clTeam == 1) {
+               //$BBClient::Player[$BBClient::Count] = %cl;
+               //$BBClient::Count++;
+            //}
+        //}
+    //}
+    //only look for player speed if the match has begun
+    if ($matchStarted) {
+        
+        //for(%i=0; %i < $BBClient::Count; %i++) {
+            
+            //%cl = $BBClient::Player[%i];
+            
+            //if (!$BodyBlock::Calculate[%cl]) {
+                //if ($PlayerHasSpawned[%cl]) {
+                    //%clTeam = Client::getTeam(%cl);
+                    //if (%clTeam == 0 || %clTeam == 1) {
+                        //%otherTeam = (%clTeam + 1) % 2;
+                        //$BodyBlock::Speed[%cl] = Game::getPlayerSpeed(%cl);
+                    //}
+                //}
+            //}
+        //}
+        
+        //cycle through clients - old way
+        for(%cl = Client::getFirst(); %cl != -1; %cl = Client::getNext(%cl)) {
+            //check to see if we are in the process of calculating a BB first
+            if (!$BodyBlock::Calculate[%cl]) {
+                if ($PlayerHasSpawned[%cl]) {
+                    %clTeam = Client::getTeam(%cl);
+                    if (%clTeam == 0 || %clTeam == 1) {
+                        
+                        %otherTeam = (%clTeam + 1) % 2; //if 0 returns 1, if 1 returns 0.
+                        //find speed
+                        $BodyBlock::Speed[%cl] = Game::getPlayerSpeed(%cl);
+                        
+                    }
+                }
+            }
+        }
+    }
+    schedule("Game::BodyBlockCheck();", 1);
+}
+
+function Game::getPlayerSpeed(%cl)
+{
+    %playerVelocity = Item::getVelocity(%cl);
+    %playerSpeed = Vector::getDistance(%playerVelocity, "0 0 0");
+    return %playerSpeed;
 }

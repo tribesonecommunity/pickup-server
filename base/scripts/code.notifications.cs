@@ -169,8 +169,7 @@ function Notifications::CountDown()
         %timeUntil2Min = ($Notifications::curTimeLeft - 120); //for example 179 - 120 = 59 seconds until 2 minute mark
 
         //this essentially bumps the main time check back on course at exactly 2 minutes
-        schedule("$curTimeAdjust = false;", %timeUntil2Min);
-        schedule("Game::checkTimeLimit();", %timeUntil2Min);
+        schedule("Notifications::Falsify();", %timeUntil2Min);
         return;
 
     }
@@ -233,4 +232,10 @@ function Notifications::CountDown()
   }
   else { }
   
+}
+
+function Notifications::Falsify()
+{
+    $curTimeAdjust = false;
+    Game::checkTimeLimit();
 }

@@ -13,14 +13,16 @@ function Midair::onMidairDisc(%clOwner, %clTarget, %time)
             Client::adjustScore(%clTarget, "MidAirLongCatch");
             MessageAll(0, Client::GetName(%clOwner) @ " lands [ " @ %meters @ " meter ] mid-air on " @ Client::GetName(%clTarget) @ "!");
             Client::SendMessage(%clOwner, 0, "~wc_buysell.wav");
+
         }
         else {
             Client::adjustScore(%clOwner, "MidAir");
             Client::SendMessage(%clOwner, 0, "You just hit a [ " @ %meters @ " meter ] mid-air on " @ Client::GetName(%clTarget) @ "!~wc_buysell.wav");
         }
-        zadmin::ActiveMessage::All( MidAirDisc, %clOwner, %clTarget, %time ); 
+        zadmin::ActiveMessage::All( MidAirDisc, %clOwner, %clTarget, %time );
     }
     else {
+        
         Client::SendMessage(%clOwner, 0, "You just hit a [ " @ %meters @ " meter ] mid-air on your teammate " @ Client::GetName(%clTarget) @ "!~wc_buysell.wav");
     }
 }

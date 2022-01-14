@@ -16,7 +16,10 @@ $PlayerAnim::DieBack = 37;
 //----------------------------------------------------------------------------
 //
 $Collector::DamageEnabled = true;
+$BodyBlock::Enabled = true;
 $CorpseTimeoutValue = 15;
+$BodyBlock::Prevent = 0;
+$BodyBlock::MinSpeed = 11;
 //
 //----------------------------------------------------------------------------
 //
@@ -109,12 +112,10 @@ function Player::onDamage(%this,%type,%value,%pos,%vec,%mom,%vertPos,%quadrant,%
     %damagedClient = Player::getClient(%this);
     %shooterClient = %object;
     
-    //Set flag is this is a team damage event
-    %teamDamageOccured = 0;
-    if(Client::getTeam(%damagedClient) == Client::getTeam(%shooterClient)) { %teamDamageOccured = 1; }
+        //Set flag is this is a team damage event
+        %teamDamageOccured = 0;
 
-        if (%type == $BulletDamageType)
-        Client::sendMessage(%shooterClient,0,"~whit.wav");
+        
 
         Player::applyImpulse(%this,%mom);
         if($teamplay && %damagedClient != %shooterClient && Client::getTeam(%damagedClient) == Client::getTeam(%shooterClient) ) {
@@ -129,6 +130,7 @@ function Player::onDamage(%this,%type,%value,%pos,%vec,%mom,%vertPos,%quadrant,%
                         Client::sendMessage(%shooterClient,0,"You just harmed Teammate " @ Client::getName(%damagedClient) @ " with your mine!");
                         Client::sendMessage(%damagedClient,0,"You just stepped on Teamate " @ Client::getName(%shooterClient) @ "'s mine!");
                     }
+                    %teamDamageOccured = 1;
                     %this.LastHarm = %shooterClient;
                     %this.DamageStamp = %curTime;
                 }
@@ -244,35 +246,46 @@ function Player::onDamage(%this,%type,%value,%pos,%vec,%mom,%vertPos,%quadrant,%
         }
         
         //handle damage events here - ignoring all team dealt damage / self damage
-        if (%teamDamageOccured == 0) {
+        if ($Collector::DamageEnabled && %teamDamageOccured == 0) {
             
-            
+            if(%shooterClient == %damagedClient) { return; }
+
             %newValue = (%value * 150);
-            %newRemainder = (%newValue - floor(%newValue));
-            
-            if (%newRemainder >= 0.5) {
-                %newValue = floor((%newValue + 1));
-            }
-            else {
-                %newValue = floor(%newValue);
-            }
             
             if (%spillOver < 0) {
-                //MessageAll(0, "Damage Dealt: " @ %newValue);
+                //do nothing
             }
             else {
-                %newValue = (1+(%newValue - floor(%spillOver * 150)));
-                //MessageAll(0, "New Damage Dealt: " @ %newValue);
+                %newValue = (%newValue - (%spillOver * 150));
             }
             
-            if ($Collector::DamageEnabled) {
-                
-                $DmgTracker::DamageOut[%shooterClient] += %newValue;
-                $DmgTracker::DamageIn[%damagedClient] += %newValue;
-                
-                //zadmin::ActiveMessage::All( DamageDealt, %shooterClient, %damagedClient, %newValue );
-            }
+            $DmgTracker::DamageOut[%shooterClient] += %newValue;
+            $DmgTracker::DamageIn[%damagedClient] += %newValue;
+              
         }
+        
+        else if ($Collector::DamageEnabled && %teamDamageOccured == 1) {
+            
+            %newValue = (%value * 150);
+            
+            if (%spillOver < 0) {
+                //do nothing
+            }
+            else {
+                %newValue = (%newValue - (%spillOver * 150));
+            }
+            
+            $DmgTracker::TeamDamageOut[%shooterClient] += %newValue;
+            $DmgTracker::TeamDamageIn[%damagedClient] += %newValue;
+
+        }
+        else { }
+    }
+    
+    if ( (%type == $BulletDamageType) && (%teamDamageOccured == 0) ) {
+        
+            Client::sendMessage(%shooterClient,0,"~whit.wav");
+            zadmin::ActiveMessage::All( HitCG, %shooterClient );
     }
 }
 
@@ -302,6 +315,81 @@ function Player::onCollision(%this,%object)
                 // Play pickup if we gave him anything
                 playSound(SoundPickupItem,GameBase::getPosition(%this));
             }
+        }
+    }
+    else {
+        
+        if (!$BodyBlock::Enabled) { return; }
+        
+        %bbVictim0 = Player::getClient(%this);
+        %bbVictim1 = Player::getClient(%object);
+
+        //confirm both collision items are infact players
+        if ( (getObjectType(%this) == "Player") && (getObjectType(%object) == "Player") ) {
+            
+            //this prevents a dead corpse case
+            if (%bbVictim0 == -1 || %bbVictim1 == -1) { return; }
+            
+            %bbV0Team = Client::getTeam(%bbVictim0);
+            %bbV1Team = Client::getTeam(%bbVictim1);
+
+            // do not count teammate bodyblocks
+            if (%bbV0Team == %bbV1Team) { return; }
+
+            //prevent double collision
+            if ($BodyBlock::Prevent == 0) {
+                $BodyBlock::Prevent = 1;
+                return;
+            }
+            else if ($BodyBlock::Prevent == 1) {
+                $BodyBlock::Prevent = 0;
+            }
+            else { }
+            
+            //STOP calculating player speed while we check for a BB
+            $BodyBlock::Calculate[%bbVictim0] = true;
+            $BodyBlock::Calculate[%bbVictim1] = true;
+            
+            //after this - get speed of both players - right now
+            %tempSpeedV0 = Game::getPlayerSpeed(%bbVictim0);
+            %tempSpeedV1 = Game::getPlayerSpeed(%bbVictim1);
+            
+            // (old speed - new speed) difference
+            %diffSpeedV0 = ($BodyBlock::Speed[%bbVictim0] - %tempSpeedV0);
+            %diffSpeedV1 = ($BodyBlock::Speed[%bbVictim1] - %tempSpeedV1);
+            
+            //in the event the speed of the player is increased after a collision
+            if (%diffSpeedV0 < 0) { %diffSpeedV0 = 0; }
+            if (%diffSpeedV1 < 0) { %diffSpeedV1 = 0; }
+            
+            // V0 lost more speed, V1 gets the BB
+            // speed of BB'd player needs to be faster than the min speed
+            if ( (%diffSpeedV0 > %diffSpeedV1) && ($BodyBlock::Speed[%bbVictim0] >= $BodyBlock::MinSpeed) ) {
+                
+                zadmin::ActiveMessage::All( BodyBlock, %bbVictim1, %bbVictim0 );
+                    
+            }
+
+            // V1 lost more speed, V0 gets the BB
+            // speed of BB'd player needs to be faster than the min speed
+            else if ( (%diffSpeedV1 > %diffSpeedV0) && ($BodyBlock::Speed[%bbVictim1] >= $BodyBlock::MinSpeed) ) {
+                
+                zadmin::ActiveMessage::All( BodyBlock, %bbVictim0, %bbVictim1 );
+                    
+            }
+            //in the event both players lose the same amount of speed - give BB to both
+            else if ( (%diffSpeedV0 == %diffSpeedV1) && ($BodyBlock::Speed[%bbVictim0] >= $BodyBlock::MinSpeed) && ($BodyBlock::Speed[%bbVictim1] >= $BodyBlock::MinSpeed) ) {
+                
+                zadmin::ActiveMessage::All( BodyBlock, %bbVictim1, %bbVictim0 );
+                zadmin::ActiveMessage::All( BodyBlock, %bbVictim0, %bbVictim1 );
+                
+            }
+            else { }
+            
+            //BEGIN calculating player speed again
+            $BodyBlock::Calculate[%bbVictim0] = false;
+            $BodyBlock::Calculate[%bbVictim1] = false;
+            
         }
     }
 }
@@ -431,4 +519,3 @@ function checkControlUnmount(%clientId)
       Client::setControlObject(%clientId, %ownedObject);
    }
 }
-
