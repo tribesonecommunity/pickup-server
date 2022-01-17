@@ -251,6 +251,13 @@ function Player::onDamage(%this,%type,%value,%pos,%vec,%mom,%vertPos,%quadrant,%
             if(%shooterClient == %damagedClient) { return; }
 
             %newValue = (%value * 150);
+            //MessageAll(0, "NewValue: " @ %newValue);
+            if ((%type == $ShrapnelDamageType) && (%newValue >= 80.99)) {
+                //MessageAll(0, "MID AIR NADE DETECTED");
+                if(!Player::ObstructionsBelow(%damagedClient, $Game::Midair::Height)) {
+                    zadmin::ActiveMessage::All( MidAirNade, %shooterClient,  %damagedClient );
+                }
+            }
             
             if (%spillOver < 0) {
                 //do nothing
@@ -319,7 +326,8 @@ function Player::onCollision(%this,%object)
     }
     else {
         
-        if (!$BodyBlock::Enabled) { return; }
+        if(!$BodyBlock::Enabled) { return; }
+        if($loadingMission) { return; }
         
         %bbVictim0 = Player::getClient(%this);
         %bbVictim1 = Player::getClient(%object);
