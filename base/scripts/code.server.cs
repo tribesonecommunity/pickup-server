@@ -550,22 +550,20 @@ function Server::CheckMatchStarted()
 
 function Server::Countdown(%time)
 {
-    $countdownStarted = true;
-    $FFATourney = false;
-    
-    if (($Server::BalancedMode == 1 || $Server::BalancedMode == 2) && $Server::Half == 2) {
-        
-        schedule("Game::startHalf();", %time);
-    }
-    
-    else {
-        
-        schedule("Game::startMatch();", %time);
-    }
-    
+  $countdownStarted = true;
+  $FFATourney = false;
+  
+  if (($Server::BalancedMode == 1 || $Server::BalancedMode == 2) && $Server::Half == 2) {
+    schedule("Game::startHalf();", %time);
+  }
+  
+  else {
+    schedule("Game::startMatch();", %time);
+  }
+  
 
   ObjectiveMission::refreshTeamScores();
-  zadmin::ActiveMessage::All( eventCountdownStarted );
+  zadmin::ActiveMessage::All( CountdownStarted , %time );
   Game::notifyMatchStart(%time);
   
   if(%time > 30)

@@ -14,6 +14,7 @@ function ObjectiveMission::missionComplete()
   MessageAll(1, "***** GAME OVER *****~wshieldhit.wav");
   
   $missionComplete = true;
+  zadmin::ActiveMessage::All( MissionComplete );
   %group = nameToID("MissionCleanup/ObjectivesSet");
   for(%i = 0; (%obj = Group::getObject(%group, %i)) != -1; %i++)
   {
