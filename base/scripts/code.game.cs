@@ -836,9 +836,8 @@ function Client::onKilled(%playerId, %killerId, %damageType)
         }
     }
     
-    //cant have speed if you're dead
+    //Body block conditions to set when dead
     $BodyBlock::Speed[%playerId] = 0;
-    
     $PlayerHasSpawned[%playerId] = false;
 
     Game::clientKilled(%playerId, %killerId);
@@ -1077,6 +1076,7 @@ function Game::BodyBlockCheck()
 {
     
     if(!$BodyBlock::Enabled) { return; }
+    if($loadingMission) { return; }
     
     //if we in a pause, back out and try again in 1 second
     if ($freezedata::actice == 1) {
@@ -1090,11 +1090,10 @@ function Game::BodyBlockCheck()
         //$BodyBlock::Init = true;
         //$BBClient::Count = 0;
         //for(%cl = Client::getFirst(); %cl != -1; %cl = Client::getNext(%cl)) {
-            //%clTeam = Client::getTeam(%cl);
-            //if (%clTeam == 0 || %clTeam == 1) {
-               //$BBClient::Player[$BBClient::Count] = %cl;
-               //$BBClient::Count++;
-            //}
+
+            //$BBClient::Player[$BBClient::Count] = %cl;
+            //$BBClient::Count++;
+
         //}
     //}
     //only look for player speed if the match has begun
@@ -1106,27 +1105,22 @@ function Game::BodyBlockCheck()
             
             //if (!$BodyBlock::Calculate[%cl]) {
                 //if ($PlayerHasSpawned[%cl]) {
-                    //%clTeam = Client::getTeam(%cl);
-                    //if (%clTeam == 0 || %clTeam == 1) {
-                        //%otherTeam = (%clTeam + 1) % 2;
-                        //$BodyBlock::Speed[%cl] = Game::getPlayerSpeed(%cl);
-                    //}
+
+                    //$BodyBlock::Speed[%cl] = Game::getPlayerSpeed(%cl);
+                    
                 //}
             //}
         //}
         
-        //cycle through clients - old way
+        //cycle through clients
         for(%cl = Client::getFirst(); %cl != -1; %cl = Client::getNext(%cl)) {
             //check to see if we are in the process of calculating a BB first
             if (!$BodyBlock::Calculate[%cl]) {
+                //player must be spawned in
                 if ($PlayerHasSpawned[%cl]) {
                     %clTeam = Client::getTeam(%cl);
                     if (%clTeam == 0 || %clTeam == 1) {
-                        
-                        %otherTeam = (%clTeam + 1) % 2; //if 0 returns 1, if 1 returns 0.
-                        //find speed
                         $BodyBlock::Speed[%cl] = Game::getPlayerSpeed(%cl);
-                        
                     }
                 }
             }

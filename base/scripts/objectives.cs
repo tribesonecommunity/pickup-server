@@ -25,10 +25,7 @@ function ObjectiveMission::missionComplete()
     Team::setObjective(%i, $firstObjectiveLine-2, " ");
     
   }
-  
-    //auto-tab at victory screen
-    //for(%cl = Client::getFirst(); %cl != -1; %cl = Client::getNext(%cl))
-       //Game::menuRequest(%cl);
+
    
   ObjectiveMission::setObjectiveHeading();
   ObjectiveMission::refreshTeamScores();
@@ -150,6 +147,31 @@ function objective::displayBitmap(%team, %line)
    Team::setObjective(%team, %line, "<jc><B0,0:" @ %bitmap1 @ "><B0,0:" @ %bitmap2 @ ">");
 }
 
+
+function Game::CollectDamage()
+{
+    
+    if(!$Collector::DamageEnabled)
+        return;
+    
+    for(%cl = Client::getFirst(); %cl != -1; %cl = Client::getNext(%cl)) {
+        
+        %clTeam = Client::getTeam(%cl);
+        if(%clTeam == 0 || %clTeam == 1) {
+            
+            zadmin::ActiveMessage::All( DamageDealt, %cl, 0, $DmgTracker::DamageOut[%cl] );
+            zadmin::ActiveMessage::All( TeamDamageDealt, %cl, 0, $DmgTracker::TeamDamageOut[%cl] );
+            $DmgTracker::DamageOut[%cl] = 0;
+            $DmgTracker::TeamDamageOut[%cl] = 0;
+            zadmin::ActiveMessage::All( DamageDealt, 0, %cl, $DmgTracker::DamageIn[%cl] );
+            zadmin::ActiveMessage::All( TeamDamageDealt, 0, %cl, $DmgTracker::TeamDamageIn[%cl] );
+            $DmgTracker::DamageIn[%cl] = 0;
+            $DmgTracker::TeamDamageIn[%cl] = 0;
+        }
+    }
+    
+}
+
 function Game::checkTimeLimit()
 {
 
@@ -214,20 +236,9 @@ function Game::checkTimeLimit()
   if ($matchStarted)
   {
       
-      if ($Collector::DamageEnabled) {
-        //damage - damage dealt
-        for(%cl = Client::getFirst(); %cl != -1; %cl = Client::getNext(%cl)) {
-            
-            zadmin::ActiveMessage::All( DamageDealt, %cl, 0, $DmgTracker::DamageOut[%cl] );
-            zadmin::ActiveMessage::All( TeamDamageDealt, %cl, 0, $DmgTracker::TeamDamageOut[%cl] );
-            $DmgTracker::DamageOut[%cl] = 0;
-            $DmgTracker::TeamDamageOut[%cl] = 0;
-            zadmin::ActiveMessage::All( DamageDealt, 0, %cl, $DmgTracker::DamageIn[%cl] );
-            zadmin::ActiveMessage::All( TeamDamageDealt, 0, %cl, $DmgTracker::TeamDamageIn[%cl] );
-            $DmgTracker::DamageIn[%cl] = 0;
-            $DmgTracker::TeamDamageIn[%cl] = 0;
-        }
-      }
+    //collect damage stats in intervals
+    Game::CollectDamage();
+ 
 
     if(%curTimeLeft <= 0) {
         if(%curTimeLeft < -60) {
@@ -322,16 +333,21 @@ function Vote::changeMission()
 function ObjectiveMission::checkScoreLimit()
 {
   %done = false;
-
   ObjectiveMission::refreshTeamScores();
 
   //check for capout win
-  for(%i = 0; %i < getNumTeams(); %i++)
-    if($teamScore[%i] >= $teamScoreLimit)
+  for(%i = 0; %i < getNumTeams(); %i++) {
+    if($teamScore[%i] >= $teamScoreLimit){
       %done = true;
+      break;
+    }
+  }
 
-  if(%done)
+  if(%done) {
+    //collect any remaining damage stat before ending mission
+    Game::CollectDamage();
     ObjectiveMission::missionComplete();
+  }
 }
 
 function ObjectiveMission::initCheck(%object)
