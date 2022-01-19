@@ -286,6 +286,7 @@ function Game::startHalf()
   
   Game::UpdateClientScores();
   
+  zadmin::ActiveMessage::All(MatchStarted);
   zadmin::AFKDaemon();
 }
 
