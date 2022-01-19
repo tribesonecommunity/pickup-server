@@ -329,11 +329,10 @@ function Player::onCollision(%this,%object)
         if(!$BodyBlock::Enabled) { return; }
         if($loadingMission) { return; }
         
-        %bbVictim0 = Player::getClient(%this);
-        %bbVictim1 = Player::getClient(%object);
-
         //confirm both collision items are infact players
         if ( (getObjectType(%this) == "Player") && (getObjectType(%object) == "Player") ) {
+            %bbVictim0 = Player::getClient(%this);
+            %bbVictim1 = Player::getClient(%object);
             
             //this prevents a dead corpse case
             if (%bbVictim0 == -1 || %bbVictim1 == -1) { return; }
