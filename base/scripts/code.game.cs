@@ -286,7 +286,6 @@ function Game::startHalf()
   
   Game::UpdateClientScores();
   
-  zadmin::ActiveMessage::All(MatchStarted);
   zadmin::AFKDaemon();
 }
 
@@ -727,6 +726,9 @@ function Client::onKilled(%playerId, %killerId, %damageType)
     else if (%killerId == %playerId)
     {
         //suicide
+        %playerCratered = false;
+        if(%damageType == $LandingDamageType) { %playerCratered = true; }
+        
         %damageType = $SuicideDamageType;
 
         %oopsMsg = sprintf($deathMsg[-2, %ridx], %victimName, %playerGender);
@@ -843,11 +845,13 @@ function Client::onKilled(%playerId, %killerId, %damageType)
 
     Game::clientKilled(%playerId, %killerId);
     
-    zadmin::ActiveMessage::All(KillTrak, %killerId, %playerId, $zadmin::WeaponName[%damageType]);
-
-    //No longer needed?
-    //%killerTeam = Client::GetTeam(%killerId);
-    //%victimTeam = Client::GetTeam(%playerId);
+    //collect stat of how many times player craters into the ground
+    if (%playerCratered) {
+        zadmin::ActiveMessage::All(KillTrak, %killerId, %playerId, "Landing");
+    }
+    else {
+        zadmin::ActiveMessage::All(KillTrak, %killerId, %playerId, $zadmin::WeaponName[%damageType]);
+    }
 
     %now = getSimTime();
     %killerId.lastActiveTimestamp = %now;
