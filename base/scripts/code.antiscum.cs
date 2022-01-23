@@ -47,7 +47,7 @@ function AntiScum::NotifyTimeLeft(%cl, %timeLeft, %force) {
   
   if (%timeLeft > 5) {
       
-    if (%timeLeft == 30 || %timeLeft == 20 || %timeLeft == 10 || %force) {
+    if (%timeLeft == 25 || %timeLeft == 15 || %timeLeft == 10 || %force) {
       Client::sendMessage(%cl, 1, "You have " @ %timeLeft @ " seconds to bring the flag home.~wshell_click.wav");
     }
     else { }
