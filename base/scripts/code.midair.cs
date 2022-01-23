@@ -3,15 +3,17 @@ function RocketDumb::onCollision(%this, %owner, %clOwner, %target, %time)
     %objType = GetObjectType(%target);
     if(%objType == "Player")
     {
+        
+        //prevent a rare situation
+        %clTarget = Player::GetClient(%target);
+        if (%clTarget == -1) { return; }
+        
         if(!Player::ObstructionsBelow(%target, $Game::Midair::Height))
         {
-            
-            %clTarget = Player::GetClient(%target);
             Midair::onMidairDisc(%clOwner, %clTarget, %time);
-            
         }
     }
-    else if (GetObjectType(%target) == "Mine")
+    else if (%objType == "Mine")
     {
         if (!Player::ObstructionsBelow(%owner, $Game::Midair::Height))
         {
@@ -20,6 +22,7 @@ function RocketDumb::onCollision(%this, %owner, %clOwner, %target, %time)
             %clOwner.lastNadeCollisionTime = getSimTime();
         }
     }
+    else { }
 }
 
 function Player::ObstructionsBelow(%pl, %distance)

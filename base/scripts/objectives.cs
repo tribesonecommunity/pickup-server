@@ -2,6 +2,9 @@ exec("code.game.cs");
 $flagReturnTime = 45;
 $Game::timeClockUpdate = 20;
 
+$Game::EgrabRadius = 40;
+$Game::ClutchReturnRadius = 20;
+
 function ObjectiveMission::missionComplete()
 {
 
@@ -26,8 +29,7 @@ function ObjectiveMission::missionComplete()
     Team::setObjective(%i, $firstObjectiveLine-2, " ");
     
   }
-
-   
+    
   ObjectiveMission::setObjectiveHeading();
   ObjectiveMission::refreshTeamScores();
   %lineNum = "";
@@ -240,7 +242,6 @@ function Game::checkTimeLimit()
     //collect damage stats in intervals
     Game::CollectDamage();
  
-
     if(%curTimeLeft <= 0) {
         if(%curTimeLeft < -60) {
             
@@ -345,8 +346,6 @@ function ObjectiveMission::checkScoreLimit()
   }
 
   if(%done) {
-    //collect any remaining damage stat before ending mission
-    Game::CollectDamage();
     ObjectiveMission::missionComplete();
   }
 }
@@ -515,7 +514,6 @@ function Player::enterMissionArea(%this)
  if((%playerClient == $freeze::FlagClient[%flagTeam]) && (!$TwoMinWarning)) {
      
     $freeze::OOB[%flagTeam] = false;
-    //MessageAllExcept(%playerClient, 0, %ClientName @ " entered the mission area. [PAUSE ENABLED]");
 
  }
 
@@ -541,7 +539,6 @@ function Player::leaveMissionArea(%this)
     if((%playerClient == $freeze::FlagClient[%flagTeam]) && (!$TwoMinWarning)) {
         
         $freeze::OOB[%flagTeam] = true;
-        //MessageAllExcept(%playerClient, 1, %ClientName @ " left the mission area. [PAUSE DISABLED]");
     }
 
  %this.outArea=1;
@@ -761,6 +758,7 @@ function Flag::objectiveInit(%this)
 
   %flagTeam = GameBase::getTeam(%this);
   $teamFlag[%flagTeam] = %this;
+  $teamFlagStandPos[%flagTeam] = GameBase::getPosition(%this);
 
   return true;
 }
@@ -864,7 +862,7 @@ function Flag::getObjectiveString(%this, %forTeam)
 
 function Flag::onDrop(%player, %type)
 {
- // TODO(opsayo) - untested change
+
  if ($NoFlagThrow) { return; }
 
  %playerTeam = GameBase::getTeam(%player);
@@ -930,6 +928,7 @@ function Flag::onCollision(%this, %object)
   %playerClient = Player::getClient(%object);
   %touchClientName = Client::getName(%playerClient);
   %atHome = %this.atHome;
+  %enemyFlagTeam = (%playerTeam + 1) % 2;
 
 
   if(%flagTeam == %playerTeam)
@@ -959,6 +958,26 @@ function Flag::onCollision(%this, %object)
 
       //afk monitor
       %playerClient.lastActiveTimestamp = getSimTime();
+      
+      // find distance of player to the enemy stand
+      %playerStandRadius = Game::distanceToFlag(%playerClient, %enemyFlagTeam, false);
+      
+      //enemy flag at home - flag and stand will be the same location
+      if(!$FlagIsDropped[%enemyFlagTeam] && !$freeze::FlagClient[%enemyFlagTeam]) {
+        %playerFlagRadius = %playerStandRadius;
+      }
+      //enemy flag held by teammate - find distance of friendly carrier to the enemy stand
+      else if(!$FlagIsDropped[%enemyFlagTeam] && $freeze::FlagClient[%enemyFlagTeam]) {
+        %playerFlagRadius = Game::distanceToFlag($freeze::FlagClient[%enemyFlagTeam], %enemyFlagTeam, false);
+      }
+      //enemy flag is in field - find distance of player to the enemy's flag
+      else {
+        %playerFlagRadius = Game::distanceToFlag(%playerClient, %enemyFlagTeam, true);
+      }
+      //player must be within distance of enemy stand as well as enemy flag
+      if( (%playerFlagRadius <= $Game::ClutchReturnRadius) && (%playerStandRadius <= $Game::ClutchReturnRadius) ) {
+            zadmin::ActiveMessage::All(FlagClutchReturn, %playerClient);
+      }
       
       Client::onFlagReturn(%flagTeam, %playerClient);
 
@@ -1046,11 +1065,11 @@ function Flag::onCollision(%this, %object)
       
       //THIS FLAG HAS BEEN PICKED UP
       $FlagIsDropped[%flagTeam] = false;
-      
       $freeze::OOB[%flagTeam] = false;
-      
       $freeze::FlagClient[%flagTeam] = %playerClient;
       
+      
+
       %this.atHome = false;
       %this.carrier = %object;
       %this.pickupSequence++;
@@ -1071,22 +1090,47 @@ function Flag::onCollision(%this, %object)
 
       //afk monitor
       %playerClient.lastActiveTimestamp = getSimTime();
-
+      
       //active code
       zadmin::ActiveMessage::All(FlagTaken, %flagTeam, %playerClient);
       
       //midair flag catch
       if(!Player::ObstructionsBelow(%playerClient, $Game::Midair::Height))
-        {
+      {
 
-            zadmin::ActiveMessage::All(FlagCatch, %flagTeam, %playerClient);
+        zadmin::ActiveMessage::All(FlagCatch, %flagTeam, %playerClient);
             
-        }
+      }
 
-      if (%atHome)
+      if (%atHome) {
         Client::onFlagGrab(%flagTeam, %playerClient);
-      else
+        
+        //stats - check for e-grab
+        //if flag is at home - on stand
+        //check radius distance to their own flag
+        
+        %doNotCheck = false;
+        
+        //your flag in field - find distance of you to your flag
+        if ($FlagIsDropped[%playerTeam]) {
+            %playerFlagRadius = Game::distanceToFlag(%playerClient, %playerTeam, true);
+        }
+        //your flag on enemies back - find distance of enemy carrier to their stand
+        else if ($freeze::FlagClient[%playerTeam]) {
+            
+            %playerFlagRadius = Game::distanceToFlag($freeze::FlagClient[%playerTeam], %enemyFlagTeam, false);
+
+        }
+        //your flag at home
+        else { %doNotCheck = true; }
+        
+        if(%playerFlagRadius <= $Game::EgrabRadius && !%doNotCheck) {
+            zadmin::ActiveMessage::All(FlagEgrab, %playerClient);
+        }
+      }
+      else {
         Client::onFlagPickup(%flagTeam, %playerClient);
+      }
     }
 
     %this.trainingObjectiveComplete = true;

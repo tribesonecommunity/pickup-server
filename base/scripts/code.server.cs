@@ -258,7 +258,7 @@ function Server::nextMission(%replay) {
             Game::HalfTimeNow();
             return;
     }
-
+    
     if(%replay) {
         %nextMission = $missionName;
     }
@@ -268,6 +268,7 @@ function Server::nextMission(%replay) {
         
     echo("Changing to mission ", %nextMission, ".");
     // give the clients enough time to load up the victory screen
+
     Server::loadMission(%nextMission);
 }
 
@@ -318,6 +319,9 @@ function remoteCGADone(%playerId)
 
 function Server::loadMission(%missionName, %immed)
 {
+    
+    //collect any final damage totals before collector closes out
+    if ($matchStarted) { Game::CollectDamage(); }
 
     for(%cl = Client::getFirst(); %cl != -1; %cl = Client::getNext(%cl))
     {

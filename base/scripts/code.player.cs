@@ -251,7 +251,7 @@ function Player::onDamage(%this,%type,%value,%pos,%vec,%mom,%vertPos,%quadrant,%
             if(%shooterClient == %damagedClient) { return; }
 
             %newValue = (%value * 150);
-            //MessageAll(0, "NewValue: " @ %newValue);
+
             if ((%type == $ShrapnelDamageType) && (%newValue >= 80.99)) {
                 //MessageAll(0, "MID AIR NADE DETECTED");
                 if(!Player::ObstructionsBelow(%damagedClient, $Game::Midair::Height)) {
