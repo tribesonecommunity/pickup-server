@@ -2,8 +2,8 @@ exec("code.game.cs");
 $flagReturnTime = 45;
 $Game::timeClockUpdate = 20;
 
-$Game::EgrabRadius = 40;
-$Game::ClutchReturnRadius = 20;
+$Game::EgrabRadius = 30;
+$Game::ClutchReturnRadius = 15;
 
 function ObjectiveMission::missionComplete()
 {
@@ -970,12 +970,13 @@ function Flag::onCollision(%this, %object)
       else if(!$FlagIsDropped[%enemyFlagTeam] && $freeze::FlagClient[%enemyFlagTeam]) {
         %playerFlagRadius = Game::distanceToFlag($freeze::FlagClient[%enemyFlagTeam], %enemyFlagTeam, false);
       }
-      //enemy flag is in field - find distance of player to the enemy's flag
+      //enemy flag is in field - find distance of enemy flag to its stand
       else {
-        %playerFlagRadius = Game::distanceToFlag(%playerClient, %enemyFlagTeam, true);
+        %playerFlagRadius = Game::distanceToFlag($teamFlag[%enemyFlagTeam], %enemyFlagTeam, false);
       }
       //player must be within distance of enemy stand as well as enemy flag
-      if( (%playerFlagRadius <= $Game::ClutchReturnRadius) && (%playerStandRadius <= $Game::ClutchReturnRadius) ) {
+      if( (%playerFlagRadius <= $Game::ClutchReturnRadius) && (%playerStandRadius <= $Game::ClutchReturnRadius) ) 
+      {
             zadmin::ActiveMessage::All(FlagClutchReturn, %playerClient);
       }
       
@@ -986,11 +987,9 @@ function Flag::onCollision(%this, %object)
       
       //midair return stat
       if(!Player::ObstructionsBelow(%playerClient, $Game::Midair::Height))
-        {
-
-            zadmin::ActiveMessage::All(FlagInterception, %flagTeam, %playerClient);
-            
-        }
+      {
+        zadmin::ActiveMessage::All(FlagInterception, %flagTeam, %playerClient);
+      }
 
     }
     else
