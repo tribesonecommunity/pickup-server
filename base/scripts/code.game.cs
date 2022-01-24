@@ -1140,3 +1140,30 @@ function Game::getPlayerSpeed(%cl)
     %playerSpeed = Vector::getDistance(%playerVelocity, "0 0 0");
     return %playerSpeed;
 }
+
+function Game::distanceToFlag(%cl, %flagTeam, %isFlag)
+{
+    
+    %clPos = GameBase::getPosition( %cl );
+    
+    //position of flag
+    if (%isFlag) {
+        %flagPos = GameBase::getPosition( $teamFlag[%flagTeam] );
+    }
+    //otherwise position of stand
+    else {
+        %flagPos = $teamFlagStandPos[%flagTeam];
+    }
+    
+    %clPosX = getWord(%clPos, 0);
+    %clPosY = getWord(%clPos, 1);
+    %clPosZ = getWord(%clPos, 2);
+    
+    %flagPosX = getWord(%flagPos, 0);
+    %flagPosY = getWord(%flagPos, 1);
+    %flagPosZ = getWord(%flagPos, 2);
+    
+    %distanceToFlag = Vector::getDistance(%clPosX @ " " @ %clPosY @ " " @ %clPosZ, %flagPosX @ " " @ %flagPosY @ " " @ %flagPosZ);
+
+    return %distanceToFlag;
+}
