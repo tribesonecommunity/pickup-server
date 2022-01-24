@@ -1143,7 +1143,7 @@ function Game::getPlayerSpeed(%cl)
 
 function Game::distanceToFlag(%cl, %flagTeam, %isFlag)
 {
-    
+    //position of client (or flag if we are comparing to stand)
     %clPos = GameBase::getPosition( %cl );
     
     //position of flag
