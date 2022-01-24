@@ -1110,9 +1110,9 @@ function Flag::onCollision(%this, %object)
         
         %doNotCheck = false;
         
-        //your flag in field - find distance of you to your flag
+        //your flag in field - find distance of your flag to enemy stand
         if ($FlagIsDropped[%playerTeam]) {
-            %playerFlagRadius = Game::distanceToFlag(%playerClient, %playerTeam, true);
+            %playerFlagRadius = Game::distanceToFlag($teamFlag[%playerTeam], %enemyFlagTeam, false);
         }
         //your flag on enemies back - find distance of enemy carrier to their stand
         else if ($freeze::FlagClient[%playerTeam]) {
