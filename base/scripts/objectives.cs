@@ -977,7 +977,7 @@ function Flag::onCollision(%this, %object)
       //player must be within distance of enemy stand as well as enemy flag
       if( (%playerFlagRadius <= $Game::ClutchReturnRadius) && (%playerStandRadius <= $Game::ClutchReturnRadius) ) 
       {
-            zadmin::ActiveMessage::All(FlagClutchReturn, %playerClient);
+            zadmin::ActiveMessage::All(FlagClutchReturn, %playerClient, %flagTeam);
       }
       
       Client::onFlagReturn(%flagTeam, %playerClient);
@@ -1012,13 +1012,13 @@ function Flag::onCollision(%this, %object)
           %flag.enemyCaps++;
           
           $FlagIsDropped[%playerTeam] = false;
-          $FlagIsDropped[%flagTeam] = false;
+          $FlagIsDropped[%enemyTeam] = false;
           
           $freeze::FlagClient[%playerTeam] = 0;
-          $freeze::FlagClient[%flagTeam] = 0;
+          $freeze::FlagClient[%enemyTeam] = 0;
           
           $freeze::OOB[%playerTeam] = false;
-          $freeze::OOB[%flagTeam] = false;
+          $freeze::OOB[%enemyTeam] = false;
 
           Item::hide(%flag, false);
           
@@ -1124,7 +1124,7 @@ function Flag::onCollision(%this, %object)
         else { %doNotCheck = true; }
         
         if(%playerFlagRadius <= $Game::EgrabRadius && !%doNotCheck) {
-            zadmin::ActiveMessage::All(FlagEgrab, %playerClient);
+            zadmin::ActiveMessage::All(FlagEgrab, %playerClient, %enemyFlagTeam);
         }
       }
       else {

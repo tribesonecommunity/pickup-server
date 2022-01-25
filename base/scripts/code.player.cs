@@ -248,11 +248,17 @@ function Player::onDamage(%this,%type,%value,%pos,%vec,%mom,%vertPos,%quadrant,%
         //handle damage events here - ignoring all team dealt damage / self damage
         if ($Collector::DamageEnabled && %teamDamageOccured == 0) {
             
-            if(%shooterClient == %damagedClient) { return; }
-
+            if( (%shooterClient == %damagedClient) && (%type != $LandingDamageType) ) { return; }
+            
             %newValue = (%value * 150);
+            
+            //clunking stat
+            if( (%type == $LandingDamageType) && (%newValue >= 10) ) {
+                zadmin::ActiveMessage::All( PlayerClunk, %shooterClient );
+                return;
+            }
 
-            if ((%type == $ShrapnelDamageType) && (%newValue >= 80.99)) {
+            if ( (%type == $ShrapnelDamageType) && (%newValue >= 80.99) ) {
                 //MessageAll(0, "MID AIR NADE DETECTED");
                 if(!Player::ObstructionsBelow(%damagedClient, $Game::Midair::Height)) {
                     zadmin::ActiveMessage::All( MidAirNade, %shooterClient,  %damagedClient );
