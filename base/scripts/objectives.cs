@@ -904,10 +904,51 @@ function Flag::onDrop(%player, %type)
  $FlagIsDropped[%flagTeam] = true;
  $freeze::OOB[%flagTeam] = false;
  $freeze::FlagClient[%flagTeam] = 0;
+ 
+ Observer::CheckFlagStatus(%flagTeam);
 
  schedule("Flag::checkReturn(" @ %flag @ ", " @ %flag.pickupSequence @ ");", $flagReturnTime);
  %flag.dropFade = 1;
  ObjectiveMission::ObjectiveChanged(%flag);
+}
+
+function Flag::checkReturn(%flag, %sequenceNum)
+{
+//messageAll(0, "checking flag return...");
+ if(%flag.pickupSequence == %sequenceNum && %flag.timerOn == "")
+ {
+  if(%flag.dropFade)
+  {
+   GameBase::startFadeOut(%flag);
+   %flag.dropFade= "";
+   %flag.fadeOut= 1;
+   schedule("Flag::checkReturn(" @ %flag @ ", " @ %sequenceNum @ ");", 2.5);
+  }
+  else
+  {
+
+   %flagTeam = GameBase::getTeam(%flag);
+   TeamMessages(0, %flagTeam, "Your flag was returned to base.~wflagreturn.wav", -2, "", "The " @ getTeamName(%flagTeam) @ " flag was returned to base.~wflagreturn.wav");
+   GameBase::setPosition(%flag, %flag.originalPosition);
+   Item::setVelocity(%flag, "0 0 0");
+
+   //active code
+   zadmin::ActiveMessage::All(FlagReturned, %flagTeam, 0); //server returns
+   Client::onFlagReturn(%flagTeam, 0);
+
+   $FlagIsDropped[%flagTeam] = false;
+   $freeze::OOB[%flagTeam] = false;
+   
+   Observer::CheckFlagStatus(%flagTeam);
+   
+   $freeze::FlagClient[%flagTeam] = 0;
+   
+   %flag.atHome = true;
+   GameBase::startFadeIn(%flag);
+   %flag.fadeOut= "";
+   ObjectiveMission::ObjectiveChanged(%flag);
+  }
+ }
 }
 
 function Flag::onCollision(%this, %object)
@@ -948,6 +989,8 @@ function Flag::onCollision(%this, %object)
       $freeze::OOB[%flagTeam] = false;
       
       $freeze::FlagClient[%flagTeam] = 0;
+      
+      Observer::CheckFlagStatus(%flagTeam);
       
       MessageAllExcept(%playerClient, 0, %touchClientName @ " returned the " @ getTeamName(%playerTeam) @ " flag!~wflagreturn.wav");
       Client::sendMessage(%playerClient, 0, "You returned the " @ getTeamName(%playerTeam) @ " flag!~wflagreturn.wav");
@@ -1013,17 +1056,21 @@ function Flag::onCollision(%this, %object)
           
           $FlagIsDropped[%playerTeam] = false;
           $FlagIsDropped[%enemyTeam] = false;
-          
+
           $freeze::FlagClient[%playerTeam] = 0;
           $freeze::FlagClient[%enemyTeam] = 0;
           
           $freeze::OOB[%playerTeam] = false;
           $freeze::OOB[%enemyTeam] = false;
+          
+          Observer::CheckFlagStatus(%enemyTeam);
 
           Item::hide(%flag, false);
           
+          GameBase::startFadeOut(%flag);
           GameBase::setPosition(%flag, %flag.originalPosition);
           Item::setVelocity(%flag, "0 0 0");
+          GameBase::startFadeIn(%flag);
 
           %flag.trainingObjectiveComplete = true;
           ObjectiveMission::ObjectiveChanged(%flag);
@@ -1067,7 +1114,7 @@ function Flag::onCollision(%this, %object)
       $freeze::OOB[%flagTeam] = false;
       $freeze::FlagClient[%flagTeam] = %playerClient;
       
-      
+      Observer::CheckFlagStatus(%flagTeam);
 
       %this.atHome = false;
       %this.carrier = %object;
@@ -1137,44 +1184,6 @@ function Flag::onCollision(%this, %object)
   }
   else
     Client::sendMessage(%playerClient, 1, "Flag not in mission area.");
-  }
- }
-}
-
-//active flag shit
-function Flag::checkReturn(%flag, %sequenceNum)
-{
-//messageAll(0, "checking flag return...");
- if(%flag.pickupSequence == %sequenceNum && %flag.timerOn == "")
- {
-  if(%flag.dropFade)
-  {
-   GameBase::startFadeOut(%flag);
-   %flag.dropFade= "";
-   %flag.fadeOut= 1;
-   schedule("Flag::checkReturn(" @ %flag @ ", " @ %sequenceNum @ ");", 2.5);
-  }
-  else
-  {
-
-   %flagTeam = GameBase::getTeam(%flag);
-   TeamMessages(0, %flagTeam, "Your flag was returned to base.~wflagreturn.wav", -2, "", "The " @ getTeamName(%flagTeam) @ " flag was returned to base.~wflagreturn.wav");
-   GameBase::setPosition(%flag, %flag.originalPosition);
-   Item::setVelocity(%flag, "0 0 0");
-
-   //active code
-   zadmin::ActiveMessage::All(FlagReturned, %flagTeam, 0); //server returns
-   Client::onFlagReturn(%flagTeam, 0);
-
-   $FlagIsDropped[%flagTeam] = false;
-   $freeze::OOB[%flagTeam] = false;
-   
-   $freeze::FlagClient[%flagTeam] = 0;
-   
-   %flag.atHome = true;
-   GameBase::startFadeIn(%flag);
-   %flag.fadeOut= "";
-   ObjectiveMission::ObjectiveChanged(%flag);
   }
  }
 }
@@ -1256,12 +1265,13 @@ function Flag::playerLeaveMissionArea(%this, %playerId)
    $FlagIsDropped[%flagTeam] = false;
    $freeze::FlagClient[%flagTeam] = 0;
    $freeze::OOB[%flagTeam] = false;
+   
+   Observer::CheckFlagStatus(%flagTeam);
 
    //active code
    zadmin::ActiveMessage::All(FlagReturned, %flagTeam, 0); //server returns
    Client::onFlagReturn(%flagTeam, 0);
    
-
   GameBase::startFadeIn(%this);
   %this.carrier = -1;
   Item::hide(%this, false);
