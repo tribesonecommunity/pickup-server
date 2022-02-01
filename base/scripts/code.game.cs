@@ -510,6 +510,8 @@ function processMenuInitialPickTeam(%clientId, %team)
       %clientId.notreadyCount = "";
     }
   }
+  
+  Observer::ConstructObservers();
   //$BodyBlock::Init = false;
 }
 
