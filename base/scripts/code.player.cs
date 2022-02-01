@@ -257,9 +257,10 @@ function Player::onDamage(%this,%type,%value,%pos,%vec,%mom,%vertPos,%quadrant,%
                 zadmin::ActiveMessage::All( PlayerClunk, %shooterClient );
                 return;
             }
-
-            if ( (%type == $ShrapnelDamageType) && (%newValue >= 80.99) ) {
+            
+            if ( (%type == $ShrapnelDamageType) && (%newValue == 67.1989) ) {
                 //MessageAll(0, "MID AIR NADE DETECTED");
+                
                 if(!Player::ObstructionsBelow(%damagedClient, $Game::Midair::Height)) {
                     zadmin::ActiveMessage::All( MidAirNade, %shooterClient,  %damagedClient );
                 }
