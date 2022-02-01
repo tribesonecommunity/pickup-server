@@ -38,7 +38,7 @@ function Observer::triggerUp(%client)
    {
       %camSpawn = Game::pickObserverSpawn(%client);
       Observer::setFlyMode(%client, GameBase::getPosition(%camSpawn), 
-	      GameBase::getRotation(%camSpawn), true, true);
+          GameBase::getRotation(%camSpawn), true, true);
    }
    else if(%client.observerMode == "justJoined")
    {
@@ -140,24 +140,24 @@ function Observer::nextFlagObs(%client)
 
 function Observer::jump(%client)
 {
-	if(%client.observerMode == "observerFly")
-	{
-		%client.observerMode = "observerOrbit";
+    if(%client.observerMode == "observerFly")
+    {
+        %client.observerMode = "observerOrbit";
         $ObservingFlag[%client] = -1;
         
-		%client.observerTarget = %client;
-		Observer::nextObservable(%client);
-	}
-	else if(%client.observerMode == "observerOrbit")
-	{
-		%client.observerMode = "observerFirst";
+        %client.observerTarget = %client;
+        Observer::nextObservable(%client);
+    }
+    else if(%client.observerMode == "observerOrbit")
+    {
+        %client.observerMode = "observerFirst";
         $ObservingFlag[%client] = -1;
 
-		Observer::setTargetClient(%client, %client.observerTarget);
+        Observer::setTargetClient(%client, %client.observerTarget);
         
-	}
-	else if(%client.observerMode == "observerFirst")
-	{
+    }
+    else if(%client.observerMode == "observerFirst")
+    {
         %client.observerMode = "observerFlag";
         $ObservingFlag[%client] = 0;
         
@@ -168,16 +168,16 @@ function Observer::jump(%client)
             Observer::setTargetObject(%client, $freeze::FlagClient[0]);
         }
         bottomprint(%client, "<jc>BLOOD EAGLE FLAG", 5);
-	}
+    }
     else if (%client.observerMode == "observerFlag") {
         
         %client.observerTarget = "";
-		%client.observerMode = "observerFly";
+        %client.observerMode = "observerFly";
         $ObservingFlag[%client] = -1;
 
-		%camSpawn = Game::pickObserverSpawn(%client);
-		Observer::setFlyMode(%client, GameBase::getPosition(%camSpawn), 
-		GameBase::getRotation(%camSpawn), true, true);
+        %camSpawn = Game::pickObserverSpawn(%client);
+        Observer::setFlyMode(%client, GameBase::getPosition(%camSpawn), 
+        GameBase::getRotation(%camSpawn), true, true);
         bottomprint(%client, "", 1);
         
     }
@@ -198,9 +198,9 @@ function Observer::enterObserverMode(%clientId)
    Client::clearItemShopping(%clientId);
    %player = Client::getOwnedObject(%clientId);
    if(%player != -1 && getObjectType(%player) == "Player" && !Player::isDead(%player)) {
-		playNextAnim(%clientId);
-	   Player::kill(%clientId);
-	}
+        playNextAnim(%clientId);
+       Player::kill(%clientId);
+    }
    Client::setOwnedObject(%clientId, -1);
    Client::setControlObject(%clientId, Client::getObserverCamera(%clientId));
    
@@ -223,11 +223,11 @@ function Observer::checkObserved(%client)
       if(%cl.observerTarget == %client)
       {
          if(%cl.observerMode == "observerOrbit")
-      	   Observer::setOrbitObject(%cl, %client, 5, 5, 5);
+           Observer::setOrbitObject(%cl, %client, 5, 5, 5);
          else if(%cl.observerMode == "observerFirst")
-      	   Observer::setOrbitObject(%cl, %client, -1, -1, -1);
+           Observer::setOrbitObject(%cl, %client, -1, -1, -1);
          else if(%cl.observerMode == "commander")
-   		   Observer::setOrbitObject(%cl, %client, -3, -3, -3);
+           Observer::setOrbitObject(%cl, %client, -3, -3, -3);
       }
    }
 }
@@ -247,26 +247,26 @@ function Observer::setTargetObject(%client, %target)
 
 function Observer::setTargetClient(%client, %target)
 {
-	if ((%client.observerMode != "observerOrbit") && (%client.observerMode != "observerFirst"))
-		return false;
+    if ((%client.observerMode != "observerOrbit") && (%client.observerMode != "observerFirst"))
+        return false;
 
-	%owned = Client::getOwnedObject(%target);
-	if(%owned == -1)
-		return false;
+    %owned = Client::getOwnedObject(%target);
+    if(%owned == -1)
+        return false;
 
-	if(%client.observerMode == "observerOrbit")
-	{
-		Observer::setOrbitObject(%client, %target, 5, 5, 5);
-		bottomprint(%client, "<jc>Third Person Observing: " @ Client::getName(%target), 5);
-	}
-	else if(%client.observerMode == "observerFirst")
-	{
-		Observer::setOrbitObject(%client, %target, -1, -1, -1);
-		bottomprint(%client, "<jc>First Person Observing: " @ Client::getName(%target), 5);
-	}
+    if(%client.observerMode == "observerOrbit")
+    {
+        Observer::setOrbitObject(%client, %target, 5, 5, 5);
+        bottomprint(%client, "<jc>Third Person Observing: " @ Client::getName(%target), 5);
+    }
+    else if(%client.observerMode == "observerFirst")
+    {
+        Observer::setOrbitObject(%client, %target, -1, -1, -1);
+        bottomprint(%client, "<jc>First Person Observing: " @ Client::getName(%target), 5);
+    }
 
-	%client.observerTarget = %target;
-	return true;
+    %client.observerTarget = %target;
+    return true;
 }
 
 function Observer::nextObservable(%client)
@@ -313,10 +313,10 @@ function remoteSCOM(%clientId, %observeId)
          if(%clientId.observerMode != "commander")
          {
             %clientId.observerMode = "commander";
-	         %clientId.lastControlObject = Client::getControlObject(%clientId);
+             %clientId.lastControlObject = Client::getControlObject(%clientId);
          }
-	      Client::setControlObject(%clientId, Client::getObserverCamera(%clientId));
-		   Observer::setOrbitObject(%clientId, %observeId, -3, -3, -3);
+          Client::setControlObject(%clientId, Client::getObserverCamera(%clientId));
+           Observer::setOrbitObject(%clientId, %observeId, -3, -3, -3);
          %clientId.observerTarget = %observeId;
          Observer::setDamageObject(%clientId, %clientId);
       }
@@ -327,9 +327,9 @@ function remoteSCOM(%clientId, %observeId)
       if(%clientId.observerMode == "commander")
       {
          Client::setControlObject(%clientId, %clientId.lastControlObject);
-		   %clientId.lastControlObject = "";
+           %clientId.lastControlObject = "";
          %clientId.observerMode = "";
          %clientId.observerTarget = "";
-	   }
+       }
    }
 }
