@@ -1063,8 +1063,7 @@ function Flag::onCollision(%this, %object)
           $freeze::OOB[%playerTeam] = false;
           $freeze::OOB[%enemyTeam] = false;
           
-          Observer::CheckFlagStatus(0);
-          Observer::CheckFlagStatus(1);
+          Observer::CheckFlagStatus(%enemyTeam);
 
           Item::hide(%flag, false);
           
