@@ -79,15 +79,14 @@ function Observer::CheckFlagStatus(%flagTeam)
     for(%i=0; %i<$Observer::maxObservers; %i++) {
         
         if($ObservingFlag[ $ObserverClient[%i] ] == %flagTeam) {
-    
             if($freeze::FlagClient[%flagTeam] == 0) {
             
                 Observer::setTargetObject($ObserverClient[%i], $teamFlag[%flagTeam]);
-        
+                bottomprint(%client, "", 1);
             }
             else {
-            
                 Observer::setTargetObject($ObserverClient[%i], $freeze::FlagClient[%flagTeam]);
+                bottomprint(%client, "<jc>Observing: " @ Client::getName($freeze::FlagClient[%flagTeam]), 5);
             }
         }
     }     
@@ -116,26 +115,27 @@ function Observer::ConstructObservers()
 
 function Observer::nextFlagObs(%client)
 {
-    if($ObservingFlag[%client] == 0) {
-        
-        $ObservingFlag[%client] = 1;
-        bottomprint(%client, "<jc>DIAMOND SWORD FLAG", 5);
-        
-    }
-    else if($ObservingFlag[%client] == 1) {
-        
-        $ObservingFlag[%client] = 0;
-        bottomprint(%client, "<jc>BLOOD EAGLE FLAG", 5);
-    }
+    if($ObservingFlag[%client] == 0) { $ObservingFlag[%client] = 1; }
+    else if($ObservingFlag[%client] == 1) { $ObservingFlag[%client] = 0; }
     else { return; }
     
     if ($freeze::FlagClient[$ObservingFlag[%client]] == 0) {
+        
         Observer::setTargetObject(%client, $teamFlag[$ObservingFlag[%client]]);
+        
+        if ($ObservingFlag[%client] == 0) {
+            
+            bottomprint(%client, "<jc>BLOOD EAGLE FLAG", 3);
+        }
+        else {
+            
+            bottomprint(%client, "<jc>DIAMOND SWORD FLAG", 3);
+        }
     }
     else {
         Observer::setTargetObject(%client, $freeze::FlagClient[$ObservingFlag[%client]]);
+        bottomprint(%client, "<jc>Observing: " @ Client::getName($freeze::FlagClient[$ObservingFlag[%client]]), 5);
     }
-    
 }
 
 function Observer::jump(%client)
@@ -167,7 +167,7 @@ function Observer::jump(%client)
         else {
             Observer::setTargetObject(%client, $freeze::FlagClient[0]);
         }
-        bottomprint(%client, "<jc>BLOOD EAGLE FLAG", 5);
+        bottomprint(%client, "<jc>BLOOD EAGLE FLAG", 3);
     }
     else if (%client.observerMode == "observerFlag") {
         
@@ -238,7 +238,6 @@ function Observer::setTargetObject(%client, %target)
    if(%owned == -1)
       return false;
 
-   
    Observer::setOrbitObject(%client, %target, 5, 5, 5);
 
    %client.observerTarget = %target;

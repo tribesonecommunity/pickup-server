@@ -15,11 +15,16 @@
         if (%sel == "trainingon") {
             $PracticeMode::TrainingMode = true;
             %cl.trainingmode = True;
+            messageAll(0, "Training Mode has been ENABLED by an Admin.");
         }
         else if (%sel == "trainingoff") {
             $PracticeMode::TrainingMode = False;
             %cl.trainingmode = False;
+            messageAll(1, "Training Mode has been DISABLED by an Admin.");
         }
+        else { }
+        
+        Game::menuRequest(%cl);
     }
 
     // Serverside remotes for clients.
