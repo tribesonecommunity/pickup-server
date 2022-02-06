@@ -893,10 +893,12 @@ function Game::NextHalf()
     
     Game::SwapScores();
     Game::SwapTeams();
-
+    
     for (%i = 0; %i < getNumTeams(); %i++) {
       Flag::ResetFlag($teamFlag[%i]);
       $FlagIsDropped[%i] = false;
+      $freeze::FlagClient[%i] = 0;
+      $freeze::OOB[%i] = false;
     }
 
     // Just to change the time on client HUDs

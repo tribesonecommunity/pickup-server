@@ -82,11 +82,11 @@ function Observer::CheckFlagStatus(%flagTeam)
             if($freeze::FlagClient[%flagTeam] == 0) {
             
                 Observer::setTargetObject($ObserverClient[%i], $teamFlag[%flagTeam]);
-                bottomprint(%client, "", 1);
+                bottomprint($ObserverClient[%i], "", 1);
             }
             else {
                 Observer::setTargetObject($ObserverClient[%i], $freeze::FlagClient[%flagTeam]);
-                bottomprint(%client, "<jc>Observing: " @ Client::getName($freeze::FlagClient[%flagTeam]), 5);
+                bottomprint($ObserverClient[%i], "<jc>Observing: " @ Client::getName($freeze::FlagClient[%flagTeam]), 5);
             }
         }
     }     

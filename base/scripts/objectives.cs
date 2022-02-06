@@ -1,4 +1,5 @@
 exec("code.game.cs");
+
 $flagReturnTime = 45;
 $Game::timeClockUpdate = 20;
 
@@ -759,6 +760,9 @@ function Flag::objectiveInit(%this)
   %flagTeam = GameBase::getTeam(%this);
   $teamFlag[%flagTeam] = %this;
   $teamFlagStandPos[%flagTeam] = GameBase::getPosition(%this);
+  
+  //re-inserting AntiSkip
+  AntiSkip::SaveFlag(%flagTeam);
 
   return true;
 }
@@ -890,16 +894,18 @@ function Flag::onCollision(%this, %object)
     if(!%this.atHome)
     {
 
-      // the flag isn't home! so return it.
+      //re-inserting AntiSkip
+      %this = AntiSkip::RestoreFlag(%flagTeam);
+      
       GameBase::startFadeOut(%this);
       GameBase::setPosition(%this, %this.originalPosition);
       Item::setVelocity(%this, "0 0 0");
       GameBase::startFadeIn(%this);
+      
       %this.atHome = true;
       
       $FlagIsDropped[%flagTeam] = false;
       $freeze::OOB[%flagTeam] = false;
-      
       $freeze::FlagClient[%flagTeam] = 0;
       
       Observer::CheckFlagStatus(%flagTeam);
@@ -955,6 +961,7 @@ function Flag::onCollision(%this, %object)
         %enemyTeam = GameBase::getTeam(%object.carryFlag);
         if(%enemyTeam != -1)
         {
+
           MessageAllExcept(%playerClient, 0, %touchClientName @ " captured the " @ getTeamName(%enemyTeam) @ " flag!~wflagcapture.wav");
           Client::sendMessage(%playerClient, 0, "You captured the " @ getTeamName(%enemyTeam) @ " flag!~wflagcapture.wav");
           TeamMessages(1, %playerTeam, "Your team captured the flag.", %enemyTeam, "Your team's flag was captured.");
@@ -967,21 +974,21 @@ function Flag::onCollision(%this, %object)
           
           $FlagIsDropped[%playerTeam] = false;
           $FlagIsDropped[%enemyTeam] = false;
-
           $freeze::FlagClient[%playerTeam] = 0;
           $freeze::FlagClient[%enemyTeam] = 0;
-          
           $freeze::OOB[%playerTeam] = false;
           $freeze::OOB[%enemyTeam] = false;
-          
-          Observer::CheckFlagStatus(%enemyTeam);
 
-          Item::hide(%flag, false);
+          //re-inserting AntiSkip
+          %flag = AntiSkip::RestoreFlag(%enemyTeam);
           
           GameBase::startFadeOut(%flag);
           GameBase::setPosition(%flag, %flag.originalPosition);
           Item::setVelocity(%flag, "0 0 0");
           GameBase::startFadeIn(%flag);
+          Item::hide(%flag, false);
+          
+          Observer::CheckFlagStatus(%enemyTeam);
 
           %flag.trainingObjectiveComplete = true;
           ObjectiveMission::ObjectiveChanged(%flag);
@@ -1153,20 +1160,23 @@ function Flag::onDrop(%player, %type)
 
 function Flag::checkReturn(%flag, %sequenceNum)
 {
-//messageAll(0, "checking flag return...");
+
  if(%flag.pickupSequence == %sequenceNum && %flag.timerOn == "")
  {
   if(%flag.dropFade)
   {
    GameBase::startFadeOut(%flag);
-   %flag.dropFade= "";
-   %flag.fadeOut= 1;
+   %flag.dropFade = "";
+   %flag.fadeOut = 1;
    schedule("Flag::checkReturn(" @ %flag @ ", " @ %sequenceNum @ ");", 2.5);
   }
   else
   {
-
    %flagTeam = GameBase::getTeam(%flag);
+   
+   //re-inserting AntiSkip
+   %flag = AntiSkip::RestoreFlag(%flagTeam);
+   
    TeamMessages(0, %flagTeam, "Your flag was returned to base.~wflagreturn.wav", -2, "", "The " @ getTeamName(%flagTeam) @ " flag was returned to base.~wflagreturn.wav");
    GameBase::setPosition(%flag, %flag.originalPosition);
    Item::setVelocity(%flag, "0 0 0");
@@ -1184,7 +1194,7 @@ function Flag::checkReturn(%flag, %sequenceNum)
    
    %flag.atHome = true;
    GameBase::startFadeIn(%flag);
-   %flag.fadeOut= "";
+   %flag.fadeOut = "";
    ObjectiveMission::ObjectiveChanged(%flag);
   }
  }
@@ -1230,55 +1240,41 @@ function Flag::playerLeaveMissionArea(%this, %playerId)
    // if a guy leaves the area, warp the flag back to its base
  if(%this.carrier == %playerId)
  {
+     
+  %flagTeam = GameBase::getTeam(%this);
+  
+  //re-inserting AntiSkip
+  %this = AntiSkip::RestoreFlag(%flagTeam);
+  
   GameBase::startFadeOut(%this);
+  
   Player::setItemCount(%playerId, "Flag", 0);
   %playerClient = Player::getClient(%playerId);
   %clientName = Client::getName(%playerClient);
-  %flagTeam = GameBase::getTeam(%this);
-  //Stats::FlagTime::StopTimer(%flagTeam, %playerClient);
-  
-   if(%flagTeam != -1)
-   {
-    %team = %flagTeam;
-    GameBase::setPosition(%this, %this.originalPosition);
-    Item::setVelocity(%this, "0 0 0");
-   }
-   else
-   {
-    %team = GameBase::getTeam(%this.flagStand);
-    GameBase::setPosition(%this, GameBase::getPosition(%this.flagStand));
-    Item::setVelocity(%this, "0 0 0");
-   }
 
-   MessageAllExcept(%playerClient, 0, %clientName @ " left the mission area while carrying the " @ getTeamName(%team) @ " flag!");
-   Client::sendMessage(%playerClient, 0, "You left the mission area while carrying the " @ getTeamName(%team) @ " flag!");
-   TeamMessages(1, %team, "Your flag was returned to base.~wflagreturn.wav", -2, "", "The " @ getTeamName(%team) @ " flag was returned to base.~wflagreturn.wav");
-
-   %holdTeam = GameBase::getTeam(%this.flagStand);
-   $teamScore[%holdTeam] += %this.scoreValue;
-   $deltaTeamScore[%holdTeam] += %this.deltaTeamScore;
-   %this.holder = %this.flagStand;
-   %this.flagStand.flag = %this;
-   %this.holdingTeam = %holdTeam;
-
-   //fix
-   %this.atHome = true;
-   
-   $FlagIsDropped[%flagTeam] = false;
-   $freeze::FlagClient[%flagTeam] = 0;
-   $freeze::OOB[%flagTeam] = false;
-   
-   Observer::CheckFlagStatus(%flagTeam);
-
-   //active code
-   zadmin::ActiveMessage::All(FlagReturned, %flagTeam, 0); //server returns
-   Client::onFlagReturn(%flagTeam, 0);
-   
+  GameBase::setPosition(%this, %this.originalPosition);
+  Item::setVelocity(%this, "0 0 0");
   GameBase::startFadeIn(%this);
-  %this.carrier = -1;
   Item::hide(%this, false);
 
+  MessageAllExcept(%playerClient, 0, %clientName @ " left the mission area while carrying the " @ getTeamName(%flagTeam) @ " flag!");
+  Client::sendMessage(%playerClient, 0, "You left the mission area while carrying the " @ getTeamName(%flagTeam) @ " flag!");
+  TeamMessages(1, %flagTeam, "Your flag was returned to base.~wflagreturn.wav", -2, "", "The " @ getTeamName(%flagTeam) @ " flag was returned to base.~wflagreturn.wav");
+
+  %this.atHome = true;
+   
+  $FlagIsDropped[%flagTeam] = false;
+  $freeze::FlagClient[%flagTeam] = 0;
+  $freeze::OOB[%flagTeam] = false;
+   
+  Observer::CheckFlagStatus(%flagTeam);
+
+  zadmin::ActiveMessage::All(FlagReturned, %flagTeam, 0);
+  Client::onFlagReturn(%flagTeam, 0);
+
+  %this.carrier = -1;
   %playerId.carryFlag = "";
+  
   Flag::clearWaypoint(%playerClient, false);
   ObjectiveMission::ObjectiveChanged(%this);
   ObjectiveMission::checkScoreLimit();
@@ -1287,15 +1283,19 @@ function Flag::playerLeaveMissionArea(%this, %playerId)
 
 function Flag::ResetFlag(%flag)
 {
-  // Physically move flag
+  %flagTeam = GameBase::getTeam(%flag);
+  
+  //re-inserting AntiSkip
+  %flag = AntiSkip::RestoreFlag(%flagTeam);
+  
+  GameBase::startFadeOut(%flag);
+ 
   GameBase::setPosition(%flag, %flag.originalPosition);
   Item::setVelocity(%flag, "0 0 0");
 
-  // Reset flag
-  %flag.flagStand = "";
-  %flagTeam = GameBase::getTeam(%flag);
   Flag::objectiveInit(%flag);
-
-  // Notify players
-  zadmin::ActiveMessage::All(FlagReturned, %flagTeam, 0); //server returns
+  
+  zadmin::ActiveMessage::All(FlagReturned, %flagTeam, 0);
+  
+  GameBase::startFadeIn(%flag);
 }
