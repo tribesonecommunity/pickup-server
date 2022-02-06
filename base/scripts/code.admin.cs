@@ -278,6 +278,9 @@ function displayMenuAdminMenu(%cl)
         }
         else {}
     }
+    
+    addLine("Turn ON Training Mode", "trainingon", !$Server::TourneyMode && !$PracticeMode::TrainingMode, %cl);
+    addLine("Turn OFF Training Mode", "trainingoff", !$Server::TourneyMode && $PracticeMode::TrainingMode, %cl);
 }
 
 function processMenuAdminMenu(%cl, %selection)
@@ -341,6 +344,14 @@ function processMenuAdminMenu(%cl, %selection)
     {
          displayMenuServerToggles(%cl);
          return;
+    }
+    else if (%selection == "trainingon") {
+        $PracticeMode::TrainingMode = true;
+         messageAll(0, "Training Mode has been ENABLED by an Admin.");
+    }
+    else if (%selection == "trainingoff") {
+        $PracticeMode::TrainingMode = false;
+        messageAll(1, "Training Mode has been DISABLED by an Admin.");
     }
 
     Game::menuRequest(%cl);

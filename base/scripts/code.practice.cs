@@ -1,32 +1,6 @@
 // Define default to false for Training Mode.
     $PracticeMode::TrainingMode = false;
 
-    // Serverside attachments.
-    Attachment::AddAfter("displayMenuAdminMenu", "PracticeMode::displayMenuTrainingMenu");
-    Attachment::AddAfter("processMenuAdminMenu", "PracticeMode::processMenuTrainingOptionsMenu");
-
-    // add to player options menu
-    function PracticeMode::displayMenuTrainingMenu(%cl) {
-        addLine("Turn ON Training Mode", "trainingon", !$Server::TourneyMode && !$PracticeMode::TrainingMode, %cl);
-        addLine("Turn OFF Training Mode", "trainingoff", !$Server::TourneyMode && $PracticeMode::TrainingMode, %cl);
-    }
-
-    function PracticeMode::processMenuTrainingOptionsMenu(%cl,%sel) {
-        if (%sel == "trainingon") {
-            $PracticeMode::TrainingMode = true;
-            %cl.trainingmode = True;
-            messageAll(0, "Training Mode has been ENABLED by an Admin.");
-        }
-        else if (%sel == "trainingoff") {
-            $PracticeMode::TrainingMode = False;
-            %cl.trainingmode = False;
-            messageAll(1, "Training Mode has been DISABLED by an Admin.");
-        }
-        else { }
-        
-        Game::menuRequest(%cl);
-    }
-
     // Serverside remotes for clients.
     function remoteStorePosition(%cl) {
         PracticeMode::storePlayerPosition(%cl);
@@ -37,7 +11,7 @@
     function remoteRestoreHealth(%cl) {
         PracticeMode::restoreFullHealth(%cl);
     }
-
+    
     // Store player data
     function PracticeMode::storePlayerPosition(%cl) {
         if ($PracticeMode::TrainingMode && !$Server::TourneyMode) {
@@ -63,8 +37,7 @@
             PracticeMode::errorNotStored(%cl);
             return;
         }
-        
-        
+
         if ($PracticeMode::TrainingMode && !$Server::TourneyMode) {
             %player = CLIENT::getOwnedObject(%cl);
             GAMEBASE::setPosition(%cl, %cl.position);
