@@ -979,8 +979,8 @@ function Flag::onCollision(%this, %object)
           $freeze::OOB[%playerTeam] = false;
           $freeze::OOB[%enemyTeam] = false;
 
-          //re-inserting AntiSkip
-          %flag = AntiSkip::RestoreFlag(%enemyTeam);
+          //re-inserting AntiSkip - new case
+          //%flag = AntiSkip::RestoreFlag(%enemyTeam);
           
           GameBase::startFadeOut(%flag);
           GameBase::setPosition(%flag, %flag.originalPosition);
@@ -1127,7 +1127,9 @@ function Flag::onDrop(%player, %type)
  }
  else
  {
-
+     //roscos default - AntiSkip
+    %flag = AntiSkip::RestoreFlag(%flagTeam);
+    
   MessageAllExcept(%playerClient, 0, %dropClientName @ " dropped the " @ getTeamName(%flagTeam) @ " flag!");
   Client::sendMessage(%playerClient, 0, "You dropped the " @ getTeamName(%flagTeam) @ " flag!");
   TeamMessages(1, %flagTeam, "Your flag was dropped in the field.", -2, "", "The " @ getTeamName(%flagTeam) @ " flag was dropped in the field.");
@@ -1243,8 +1245,8 @@ function Flag::playerLeaveMissionArea(%this, %playerId)
      
   %flagTeam = GameBase::getTeam(%this);
   
-  //re-inserting AntiSkip
-  %this = AntiSkip::RestoreFlag(%flagTeam);
+  //re-inserting AntiSkip - new case
+  //%this = AntiSkip::RestoreFlag(%flagTeam);
   
   GameBase::startFadeOut(%this);
   
@@ -1285,8 +1287,8 @@ function Flag::ResetFlag(%flag)
 {
   %flagTeam = GameBase::getTeam(%flag);
   
-  //re-inserting AntiSkip
-  %flag = AntiSkip::RestoreFlag(%flagTeam);
+  //re-inserting AntiSkip - new case
+  //%flag = AntiSkip::RestoreFlag(%flagTeam);
   
   GameBase::startFadeOut(%flag);
  
