@@ -233,6 +233,7 @@ function createServer(%mission, %dedicated) {
   exec("code.client.cs");
   exec("code.admin.cs");
   exec("code.datablocks.cs");
+  exec("code.antiskip.cs");
 
   Server::storeData();
 
@@ -363,10 +364,14 @@ function Server::loadMission(%missionName, %immed)
     $missionName = %missionName;
     $missionFile = %missionFile;
     $prevNumTeams = getNumTeams();
-
-    deleteObject("MissionGroup");
-    deleteObject("MissionCleanup");
-    deleteObject("ConsoleScheduler");
+    
+    //prevents deleting of items that do not exist on initial server start
+    if (!$ServerFirstRun) { $ServerFirstRun = true; }
+    else {
+        deleteObject("MissionGroup");
+        deleteObject("MissionCleanup");
+        deleteObject("ConsoleScheduler");
+    }
     
     resetPlayerManager();
     resetGhostManagers();
