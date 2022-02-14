@@ -154,8 +154,7 @@ function objective::displayBitmap(%team, %line)
 
 function Game::CollectDamage()
 {
-    
-    if(!$Collector::DamageEnabled)
+    if(!$Stats::DamageEnabled)
         return;
     
     for(%cl = Client::getFirst(); %cl != -1; %cl = Client::getNext(%cl)) {
@@ -165,15 +164,29 @@ function Game::CollectDamage()
             
             zadmin::ActiveMessage::All( DamageDealt, %cl, 0, $DmgTracker::DamageOut[%cl] );
             zadmin::ActiveMessage::All( TeamDamageDealt, %cl, 0, $DmgTracker::TeamDamageOut[%cl] );
+            //
+            Collector::onDamageDealt( %cl, 0, $DmgTracker::DamageOut[%cl] );
+            Collector::onTeamDamageDealt( %cl, 0, $DmgTracker::TeamDamageOut[%cl] );
+            //
             $DmgTracker::DamageOut[%cl] = 0;
             $DmgTracker::TeamDamageOut[%cl] = 0;
+            ///////////////////////////////////////////////////////////////////////////////////////
             zadmin::ActiveMessage::All( DamageDealt, 0, %cl, $DmgTracker::DamageIn[%cl] );
             zadmin::ActiveMessage::All( TeamDamageDealt, 0, %cl, $DmgTracker::TeamDamageIn[%cl] );
+            //
+            Collector::onDamageDealt( 0, %cl, $DmgTracker::DamageIn[%cl] );
+            Collector::onTeamDamageDealt( 0, %cl, $DmgTracker::TeamDamageIn[%cl] );
+            //
+            $DmgTracker::DamageIn[%cl] = 0;
+            $DmgTracker::TeamDamageIn[%cl] = 0;
+        }
+        else {
+            $DmgTracker::DamageOut[%cl] = 0;
+            $DmgTracker::TeamDamageOut[%cl] = 0;
             $DmgTracker::DamageIn[%cl] = 0;
             $DmgTracker::TeamDamageIn[%cl] = 0;
         }
     }
-    
 }
 
 function Game::checkTimeLimit()
@@ -939,17 +952,23 @@ function Flag::onCollision(%this, %object)
       if( (%playerFlagRadius <= $Game::ClutchReturnRadius) && (%playerStandRadius <= $Game::ClutchReturnRadius) ) 
       {
             zadmin::ActiveMessage::All(FlagClutchReturn, %playerClient, %flagTeam);
+            //
+            Collector::onFlagClutchReturn( %playerClient, %flagTeam );
       }
       
       Client::onFlagReturn(%flagTeam, %playerClient);
 
       //active code
       zadmin::ActiveMessage::All(FlagReturned, %flagTeam, %playerClient);
+      //
+      Stats::FlagReturned( %flagTeam, %playerClient );
       
       //midair return stat
       if(!Player::ObstructionsBelow(%playerClient, $Game::Midair::Height))
       {
         zadmin::ActiveMessage::All(FlagInterception, %flagTeam, %playerClient);
+        //
+        Collector::onFlagInt( %flagTeam, %playerClient );
       }
     }
     else
@@ -980,7 +999,7 @@ function Flag::onCollision(%this, %object)
           $freeze::OOB[%enemyTeam] = false;
 
           //re-inserting AntiSkip - new case
-          //%flag = AntiSkip::RestoreFlag(%enemyTeam);
+          %flag = AntiSkip::RestoreFlag(%enemyTeam);
           
           GameBase::startFadeOut(%flag);
           GameBase::setPosition(%flag, %flag.originalPosition);
@@ -1004,6 +1023,9 @@ function Flag::onCollision(%this, %object)
 
           //active code
           zadmin::ActiveMessage::All(FlagCaptured, %enemyTeam, %playerClient);
+          //
+          Stats::FlagCaptured( %enemyTeam, %playerClient );
+          
           zadmin::ActiveMessage::All(TeamScore, %playerTeam, $teamScore[%playerTeam]);
           Client::onFlagCap(%enemyTeam, %playerClient);
 
@@ -1057,12 +1079,16 @@ function Flag::onCollision(%this, %object)
       
       //active code
       zadmin::ActiveMessage::All(FlagTaken, %flagTeam, %playerClient);
+      //
+      Stats::FlagTaken( %flagTeam, %playerClient );
       
       //midair flag catch
       if(!Player::ObstructionsBelow(%playerClient, $Game::Midair::Height))
       {
 
         zadmin::ActiveMessage::All(FlagCatch, %flagTeam, %playerClient);
+        //
+        Collector::onFlagCatch( %flagTeam, %playerClient );
             
       }
 
@@ -1090,6 +1116,8 @@ function Flag::onCollision(%this, %object)
         
         if(%playerFlagRadius <= $Game::EgrabRadius && !%doNotCheck) {
             zadmin::ActiveMessage::All(FlagEgrab, %playerClient, %enemyFlagTeam);
+            //
+            Collector::onFlagEGrab( %playerClient, %enemyFlagTeam );
         }
       }
       else {
@@ -1127,8 +1155,6 @@ function Flag::onDrop(%player, %type)
  }
  else
  {
-     //roscos default - AntiSkip
-    %flag = AntiSkip::RestoreFlag(%flagTeam);
     
   MessageAllExcept(%playerClient, 0, %dropClientName @ " dropped the " @ getTeamName(%flagTeam) @ " flag!");
   Client::sendMessage(%playerClient, 0, "You dropped the " @ getTeamName(%flagTeam) @ " flag!");
@@ -1139,6 +1165,9 @@ function Flag::onDrop(%player, %type)
 
   //active code
   zadmin::ActiveMessage::All(FlagDropped, %flagTeam, %playerClient);
+  //
+  Stats::FlagDropped( %flagTeam, %playerClient );
+  
   Client::onFlagDrop(%flagTeam, %playerClient);
  }
 
@@ -1184,7 +1213,10 @@ function Flag::checkReturn(%flag, %sequenceNum)
    Item::setVelocity(%flag, "0 0 0");
 
    //active code
-   zadmin::ActiveMessage::All(FlagReturned, %flagTeam, 0); //server returns
+   zadmin::ActiveMessage::All(FlagReturned, %flagTeam, 0);
+   //
+   Stats::FlagReturned( %flagTeam, 0 );
+   
    Client::onFlagReturn(%flagTeam, 0);
 
    $FlagIsDropped[%flagTeam] = false;
@@ -1246,7 +1278,7 @@ function Flag::playerLeaveMissionArea(%this, %playerId)
   %flagTeam = GameBase::getTeam(%this);
   
   //re-inserting AntiSkip - new case
-  //%this = AntiSkip::RestoreFlag(%flagTeam);
+  %this = AntiSkip::RestoreFlag(%flagTeam);
   
   GameBase::startFadeOut(%this);
   
@@ -1272,6 +1304,9 @@ function Flag::playerLeaveMissionArea(%this, %playerId)
   Observer::CheckFlagStatus(%flagTeam);
 
   zadmin::ActiveMessage::All(FlagReturned, %flagTeam, 0);
+  //
+  Stats::FlagReturned( %flagTeam, 0 );
+  
   Client::onFlagReturn(%flagTeam, 0);
 
   %this.carrier = -1;
@@ -1288,7 +1323,7 @@ function Flag::ResetFlag(%flag)
   %flagTeam = GameBase::getTeam(%flag);
   
   //re-inserting AntiSkip - new case
-  //%flag = AntiSkip::RestoreFlag(%flagTeam);
+  %flag = AntiSkip::RestoreFlag(%flagTeam);
   
   GameBase::startFadeOut(%flag);
  
@@ -1298,6 +1333,8 @@ function Flag::ResetFlag(%flag)
   Flag::objectiveInit(%flag);
   
   zadmin::ActiveMessage::All(FlagReturned, %flagTeam, 0);
+  //
+  Stats::FlagReturned( %flagTeam, 0 );
   
   GameBase::startFadeIn(%flag);
 }

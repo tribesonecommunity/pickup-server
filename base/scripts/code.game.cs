@@ -226,12 +226,19 @@ function Game::startMatch()
     //send score updatez for team 0/1
     zadmin::ActiveMessage::All(TeamScore, 0, 0);
     zadmin::ActiveMessage::All(TeamScore, 1, 0);
+    //
     zadmin::ActiveMessage::All(MatchStarted);
+    zadmin::reset();
+    //
     zadmin::AFKDaemon();
     
     //begin checking player positions for body blocks
     //$BodyBlock::Init = false;
     Game::BodyBlockCheck();
+    
+    //
+    Collector::onStart();
+    
 }
 
 // Kinda like startMatch, but without resetting scores.
@@ -850,9 +857,13 @@ function Client::onKilled(%playerId, %killerId, %damageType)
     //collect stat of how many times player craters into the ground
     if (%playerCratered) {
         zadmin::ActiveMessage::All(KillTrak, %killerId, %playerId, "Landing");
+        //
+        Stats::KillTrak( %killerId, %playerId, "Landing" );
     }
     else {
         zadmin::ActiveMessage::All(KillTrak, %killerId, %playerId, $zadmin::WeaponName[%damageType]);
+        //
+        Stats::KillTrak( %killerId, %playerId, $zadmin::WeaponName[%damageType] );
     }
 
     %now = getSimTime();

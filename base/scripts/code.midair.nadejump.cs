@@ -29,5 +29,7 @@ function Event::AnnounceNadeJump(%cl)
 	%speed = Vector::GetDistance("0 0 0", %vel);
 	Client::SendMessage(%cl, 0, "~wmine_act.wav");
 	zadmin::ActiveMessage::All(onNadeJump, %cl, %speed);
+    //
+    Collector::onNadeJump( %cl, %speed );
 }
 
