@@ -255,8 +255,12 @@ function Player::onDamage(%this,%type,%value,%pos,%vec,%mom,%vertPos,%quadrant,%
             //clunking stat
             if( (%type == $LandingDamageType) && (%newValue >= 10) ) {
                 zadmin::ActiveMessage::All( PlayerClunk, %shooterClient );
+                //
+                //Collector::onPlayerClunk( %shooterClient );
                 return;
             }
+            else if ( (%type == $LandingDamageType) && (%newValue < 10) ) { return; }
+            else {}
             
             if ( (%type == $ShrapnelDamageType) && (%newValue == 67.1989) ) {
                 //MessageAll(0, "MID AIR NADE DETECTED");
