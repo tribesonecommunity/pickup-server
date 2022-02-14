@@ -153,7 +153,10 @@ function Server::onClientConnect(%clientId)
 
     $ServerIsEmpty = false;
     ObjectiveMission::refreshTeamScores();
-    Game::checkTimeLimit();
+    //Game::checkTimeLimit();
+    //
+    Collector::onPlayerJoin( %clientId );
+    //
 }
 
 function Server::onClientDisconnect(%clientId)
@@ -190,6 +193,9 @@ function Server::onClientDisconnect(%clientId)
     else {}
 
     ObjectiveMission::refreshTeamScores();
+    //
+    Collector::onPlayerDrop( %clientId );
+    //
 }
 
 function createServer(%mission, %dedicated) {

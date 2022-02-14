@@ -150,7 +150,7 @@ function Collector::ConstructFinalizeTeamLists() {
 	}
 }
 
-function Collector::onPlayerJoin( %cl) {
+function Collector::onPlayerJoin( %cl ) {
 	%name = Client::getName( %cl );
 	%team = Client::getTeam( %cl );
 	

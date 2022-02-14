@@ -517,7 +517,9 @@ function processMenuInitialPickTeam(%clientId, %team)
       %clientId.notreadyCount = "";
     }
   }
-  
+  //
+  Collector::onPlayerChange( %clientId, %team );
+  //
   Observer::ConstructObservers();
   //$BodyBlock::Init = false;
 }

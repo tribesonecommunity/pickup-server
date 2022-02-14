@@ -840,7 +840,10 @@ function processMenuChangeTeamsMenu(%clientId, %team, %adminClient)
          bottomprint(%clientId, "<f1><jc>Press FIRE when ready.", 0);
          %clientId.notready = true;
     }
-
+    
+    //
+    Collector::onPlayerChange( %clientId, %team );
+    //
     Observer::ConstructObservers();
     //$BodyBlock::Init = false;
 }
