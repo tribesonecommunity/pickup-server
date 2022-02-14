@@ -9,7 +9,7 @@ $Game::LT::Countdown = true;
 $Game::LT::MidAirBeep = "~whit.wav";
 
 $zadmin::version = "0.935";
-$zadmin::state = "LT Stripped v1.5.2 + Anti-Scum";
+$zadmin::state = "LT Stripped v1.5.3 + Anti-Scum";
 
 $ModInfo = "zadmin <f2>v"@$zadmin::version@"<f1>/<f2>"@$zadmin::state;
 
@@ -100,6 +100,7 @@ exec("code.midair.nadejump.cs");
 exec("code.smurfscanner.cs");
 exec("code.antiscum.cs");
 exec("code.practice.cs");
+exec("code.stats.cs");
 
 translateMasters();
 
