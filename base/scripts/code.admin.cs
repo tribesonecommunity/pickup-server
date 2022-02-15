@@ -382,8 +382,8 @@ function displayMenuServerToggles(%cl)
     addLine("Enable Anti-Scum", "yesantiscum", (%cl.canChangeGameMode && !$AntiScum::ENABLED), %cl);
     addLine("Disable Anti-Scum", "noantiscum", (%cl.canChangeGameMode && $AntiScum::ENABLED), %cl);
     
-    addLine("Enable Damage Tracking", "yesdamage", (%cl.canChangeGameMode && !$Collector::DamageEnabled), %cl);
-    addLine("Disable Damage Tracking", "nodamage", (%cl.canChangeGameMode && $Collector::DamageEnabled), %cl);
+    addLine("Enable Damage Tracking", "yesdamage", (%cl.canChangeGameMode && !$Stats::DamageEnabled), %cl);
+    addLine("Disable Damage Tracking", "nodamage", (%cl.canChangeGameMode && $Stats::DamageEnabled), %cl);
     
     addLine("Enable BB Tracking", "yesbodyblock", (%cl.canChangeGameMode && !$BodyBlock::Enabled), %cl);
     addLine("Disable BB Tracking", "nobodyblock", (%cl.canChangeGameMode && $BodyBlock::Enabled), %cl);
@@ -436,11 +436,11 @@ function processMenuServerTogglesMenu(%cl, %sel)
     }
     
     if (%sel == "yesdamage") {
-        $Collector::DamageEnabled = true;
+        $Stats::DamageEnabled = true;
         messageAll(0, "Damage tracking has been ENABLED by an Admin.");
     }
     else if (%sel == "nodamage") {
-        $Collector::DamageEnabled = false;
+        $Stats::DamageEnabled = false;
         messageAll(0, "Damage tracking has been DISABLED by an Admin.");
     }
     
@@ -840,7 +840,10 @@ function processMenuChangeTeamsMenu(%clientId, %team, %adminClient)
          bottomprint(%clientId, "<f1><jc>Press FIRE when ready.", 0);
          %clientId.notready = true;
     }
-
+    
+    //
+    Collector::onPlayerChange( %clientId, %team );
+    //
     Observer::ConstructObservers();
     //$BodyBlock::Init = false;
 }

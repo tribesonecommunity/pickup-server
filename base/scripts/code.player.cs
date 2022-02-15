@@ -15,7 +15,7 @@ $PlayerAnim::DieBack = 37;
 //
 //----------------------------------------------------------------------------
 //
-$Collector::DamageEnabled = true;
+$Stats::DamageEnabled = true;
 $BodyBlock::Enabled = true;
 $CorpseTimeoutValue = 15;
 $BodyBlock::Prevent = 0;
@@ -114,8 +114,6 @@ function Player::onDamage(%this,%type,%value,%pos,%vec,%mom,%vertPos,%quadrant,%
     
         //Set flag is this is a team damage event
         %teamDamageOccured = 0;
-
-        
 
         Player::applyImpulse(%this,%mom);
         if($teamplay && %damagedClient != %shooterClient && Client::getTeam(%damagedClient) == Client::getTeam(%shooterClient) ) {
@@ -246,7 +244,7 @@ function Player::onDamage(%this,%type,%value,%pos,%vec,%mom,%vertPos,%quadrant,%
         }
         
         //handle damage events here - ignoring all team dealt damage / self damage
-        if ($Collector::DamageEnabled && %teamDamageOccured == 0) {
+        if ($Stats::DamageEnabled && %teamDamageOccured == 0) {
             
             if( (%shooterClient == %damagedClient) && (%type != $LandingDamageType) ) { return; }
             
@@ -256,17 +254,19 @@ function Player::onDamage(%this,%type,%value,%pos,%vec,%mom,%vertPos,%quadrant,%
             if( (%type == $LandingDamageType) && (%newValue >= 10) ) {
                 zadmin::ActiveMessage::All( PlayerClunk, %shooterClient );
                 //
-                //Collector::onPlayerClunk( %shooterClient );
+                Collector::onPlayerClunk( %shooterClient );
                 return;
             }
             else if ( (%type == $LandingDamageType) && (%newValue < 10) ) { return; }
             else {}
             
             if ( (%type == $ShrapnelDamageType) && (%newValue == 67.1989) ) {
-                //MessageAll(0, "MID AIR NADE DETECTED");
                 
                 if(!Player::ObstructionsBelow(%damagedClient, $Game::Midair::Height)) {
+
                     zadmin::ActiveMessage::All( MidAirNade, %shooterClient,  %damagedClient );
+                    //
+                    Stats::MidAirNade( %shooterClient, %damagedClient );
                 }
             }
             
@@ -279,10 +279,9 @@ function Player::onDamage(%this,%type,%value,%pos,%vec,%mom,%vertPos,%quadrant,%
             
             $DmgTracker::DamageOut[%shooterClient] += %newValue;
             $DmgTracker::DamageIn[%damagedClient] += %newValue;
-              
         }
         
-        else if ($Collector::DamageEnabled && %teamDamageOccured == 1) {
+        else if ($Stats::DamageEnabled && %teamDamageOccured == 1) {
             
             %newValue = (%value * 150);
             
@@ -385,6 +384,8 @@ function Player::onCollision(%this,%object)
             if ( (%diffSpeedV0 > %diffSpeedV1) && ($BodyBlock::Speed[%bbVictim0] >= $BodyBlock::MinSpeed) ) {
                 
                 zadmin::ActiveMessage::All( BodyBlock, %bbVictim1, %bbVictim0 );
+                //
+                Collector::onBodyBlock( %bbVictim1, %bbVictim0 );
                     
             }
 
@@ -393,6 +394,8 @@ function Player::onCollision(%this,%object)
             else if ( (%diffSpeedV1 > %diffSpeedV0) && ($BodyBlock::Speed[%bbVictim1] >= $BodyBlock::MinSpeed) ) {
                 
                 zadmin::ActiveMessage::All( BodyBlock, %bbVictim0, %bbVictim1 );
+                //
+                Collector::onBodyBlock( %bbVictim0, %bbVictim1 );
                     
             }
             //in the event both players lose the same amount of speed - give BB to both
@@ -400,6 +403,9 @@ function Player::onCollision(%this,%object)
                 
                 zadmin::ActiveMessage::All( BodyBlock, %bbVictim1, %bbVictim0 );
                 zadmin::ActiveMessage::All( BodyBlock, %bbVictim0, %bbVictim1 );
+                //
+                Collector::onBodyBlock( %bbVictim1, %bbVictim0 );
+                Collector::onBodyBlock( %bbVictim0, %bbVictim1 );
                 
             }
             else { }

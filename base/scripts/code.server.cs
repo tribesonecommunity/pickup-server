@@ -153,7 +153,10 @@ function Server::onClientConnect(%clientId)
 
     $ServerIsEmpty = false;
     ObjectiveMission::refreshTeamScores();
-    Game::checkTimeLimit();
+    //Game::checkTimeLimit();
+    //
+    Collector::onPlayerJoin( %clientId );
+    //
 }
 
 function Server::onClientDisconnect(%clientId)
@@ -190,9 +193,10 @@ function Server::onClientDisconnect(%clientId)
     else {}
 
     ObjectiveMission::refreshTeamScores();
+    //
+    Collector::onPlayerDrop( %clientId );
+    //
 }
-
-
 
 function createServer(%mission, %dedicated) {
     // hardcode packet rate
@@ -322,7 +326,12 @@ function Server::loadMission(%missionName, %immed)
 {
     
     //collect any final damage totals before collector closes out
-    if ($matchStarted) { Game::CollectDamage(); }
+    if ($matchStarted) {
+        
+        Game::CollectDamage();
+        Collector::onStop();
+        
+    }
 
     for(%cl = Client::getFirst(); %cl != -1; %cl = Client::getNext(%cl))
     {

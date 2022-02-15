@@ -20,6 +20,7 @@ function Midair::onMidairDisc(%clOwner, %clTarget, %time)
             Client::SendMessage(%clOwner, 0, "You just hit a [ " @ %meters @ " meter ] mid-air on " @ Client::GetName(%clTarget) @ "!~wc_buysell.wav");
         }
         zadmin::ActiveMessage::All( MidAirDisc, %clOwner, %clTarget, %time );
+        Stats::MidAirDisc( %clOwner, %clTarget, %time );
     }
     else {
         Client::SendMessage(%clOwner, 0, "You just hit a [ " @ %meters @ " meter ] mid-air on your teammate " @ Client::GetName(%clTarget) @ "!~wc_buysell.wav");

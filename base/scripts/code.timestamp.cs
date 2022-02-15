@@ -227,3 +227,30 @@ function endMonth(%month, %day, %year)
 	else
 		return 0;
 }   
+
+function timestamp::zeropad( %s ) {
+	zadmin::ZeroPad(%s);
+}
+
+function timestamp::array() {
+	Time::Array();
+}
+
+function timestamp::format() {
+    
+    zadmin::getTimeStamp_Patched();
+    
+	//timestamp::array();
+	
+	//%time = timestamp::zeropad( $time["hr"] ) @ ":" @ timestamp::zeropad( $time["mn"] );
+	//%date = $time["yr"] @ "-" @ timestamp::zeropad( $time["mo"] ) @ "-" @ timestamp::zeropad( $time["dy"] );
+	//return ( %date @ " " @ %time );
+}
+
+function time::getMinutes( %simTime ) {
+	return floor( %simTime / 60 );
+}
+
+function Time::getSeconds( %simTime ) {
+	return ( %simTime % 60 );
+}
