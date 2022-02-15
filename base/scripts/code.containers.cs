@@ -51,8 +51,6 @@ function TimeC::Duration( %event, %state ) {
 	return C::Get( %event @ %state );
 }
 
-
-
 // List container tracks lists of items
 
 function L::Count( %list ) {

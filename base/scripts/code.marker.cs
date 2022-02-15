@@ -21,4 +21,3 @@ Marker::AddTeam(  0, "                BE" );
 Marker::AddTeam(  1, "                DS" );
 Marker::AddTeam(  2, "                -BE" );
 Marker::AddTeam(  3, "                -DS" );
-

@@ -48,6 +48,7 @@ function Collector::ResetAll(%name) {
     $Collector::Clunks[%name] = 0;
     $Collector::timeflag[ 0, %name ] = 0;
     $Collector::timeflag[ 1, %name ] = 0;
+    $Collector::TotalFlagTime[ %name ] = 0;
 }
 
 function Collector::onStart() {
@@ -117,10 +118,10 @@ function Collector::ConstructFinalizeTeamLists() {
 		// finalize the team time
 		TimeC::Update( $Marker::Player@%name, -1 );
 
-		echo( %name );
+		//echo( %name );
 		for ( %team = -1; %team <= 1; %team++ ) {
 			$Collector::timeplayer[%name, %team] = TimeC::Duration( $Marker::Player @ %name, %team );
-			echo( $Collector::timeplayer[%name, %team] );
+			//echo( $Collector::timeplayer[%name, %team] );
 		}
 		
 		// Place player on the team they join in the 1st half
@@ -178,9 +179,8 @@ function Collector::onPlayerChange( %cl, %newteam ) {
         
     }
     
-	TimeC::Update( $Marker::Player@Client::getName( %cl ), %newteam );
+	TimeC::Update( $Marker::Player @ %name, %newteam );
 }
-
 
 function Collector::onClientScoreAdd( %cl, %scoreAdd ) {
 	%name = Client::getName( %cl );

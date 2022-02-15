@@ -238,7 +238,6 @@ function Game::startMatch()
     
     //
     Collector::onStart();
-    
 }
 
 // Kinda like startMatch, but without resetting scores.

@@ -1,3 +1,4 @@
+//
 function Stack::Push( %var, %item0, %item1, %item2 ) {
 	if ( $Stack[%var, count] == "" )
 		$Stack[%var, count] = 0;
