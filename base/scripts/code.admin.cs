@@ -382,11 +382,14 @@ function displayMenuServerToggles(%cl)
     addLine("Enable Anti-Scum", "yesantiscum", (%cl.canChangeGameMode && !$AntiScum::ENABLED), %cl);
     addLine("Disable Anti-Scum", "noantiscum", (%cl.canChangeGameMode && $AntiScum::ENABLED), %cl);
     
-    addLine("Enable Damage Tracking", "yesdamage", (%cl.canChangeGameMode && !$Stats::DamageEnabled), %cl);
-    addLine("Disable Damage Tracking", "nodamage", (%cl.canChangeGameMode && $Stats::DamageEnabled), %cl);
+    //addLine("Enable Damage Tracking", "yesdamage", (%cl.canChangeGameMode && !$Stats::DamageEnabled), %cl);
+    //addLine("Disable Damage Tracking", "nodamage", (%cl.canChangeGameMode && $Stats::DamageEnabled), %cl);
     
     addLine("Enable BB Tracking", "yesbodyblock", (%cl.canChangeGameMode && !$BodyBlock::Enabled), %cl);
     addLine("Disable BB Tracking", "nobodyblock", (%cl.canChangeGameMode && $BodyBlock::Enabled), %cl);
+    
+    addLine("Enable Stats Export", "yesstatsexport", (%cl.canChangeGameMode && !$StatsExport::Enabled), %cl);
+    addLine("Disable Stats Export", "nostatsexport", (%cl.canChangeGameMode && $StatsExport::Enabled), %cl);
     
     addLine("Back...", "adminmenu", (%cl.adminLevel > 0), %cl);
 
@@ -435,14 +438,14 @@ function processMenuServerTogglesMenu(%cl, %sel)
         messageAll(0, "Anti-scum has been DISABLED by an Admin.");
     }
     
-    if (%sel == "yesdamage") {
-        $Stats::DamageEnabled = true;
-        messageAll(0, "Damage tracking has been ENABLED by an Admin.");
-    }
-    else if (%sel == "nodamage") {
-        $Stats::DamageEnabled = false;
-        messageAll(0, "Damage tracking has been DISABLED by an Admin.");
-    }
+    //if (%sel == "yesdamage") {
+        //$Stats::DamageEnabled = true;
+        //messageAll(0, "Damage tracking has been ENABLED by an Admin.");
+    //}
+    //else if (%sel == "nodamage") {
+        //$Stats::DamageEnabled = false;
+        //messageAll(0, "Damage tracking has been DISABLED by an Admin.");
+    //}
     
     if (%sel == "yesbodyblock") {
         $BodyBlock::Enabled = true;
@@ -452,6 +455,15 @@ function processMenuServerTogglesMenu(%cl, %sel)
     else if (%sel == "nobodyblock") {
         $BodyBlock::Enabled = false;
         messageAll(0, "BB tracking has been DISABLED by an Admin.");
+    }
+    
+    if (%sel == "yesstatsexport") {
+        $StatsExport::Enabled = true;
+        messageAll(0, "Exporting stats has been ENABLED by an Admin.");
+    }
+    else if (%sel == "nostatsexport") {
+        $StatsExport::Enabled = false;
+        messageAll(0, "Exporting stats has been DISABLED by an Admin.");
     }
 
     Game::menuRequest(%cl);

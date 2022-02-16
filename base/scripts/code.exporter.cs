@@ -34,54 +34,54 @@ function boldnum( %n ) {
     else {
         return "0";
     }
-	//return ( !String::Compare( %n, "-" ) || ( String::Compare( %n, "" ) &&  String::Compare( %n, "0" ) ) ) ? bold( %n ) : "0";
+    //return ( !String::Compare( %n, "-" ) || ( String::Compare( %n, "" ) &&  String::Compare( %n, "0" ) ) ) ? bold( %n ) : "0";
 }
 
 function alttag() {
-	$Exporter::alttag = ( $Exporter::alttag + 1 ) & 1;
-	return ( "alt" @ $Exporter::alttag );
+    $Exporter::alttag = ( $Exporter::alttag + 1 ) & 1;
+    return ( "alt" @ $Exporter::alttag );
 }
 
 function boldtime( %duration ) {
-	if ( %duration == "-" )
-		return ( %duration );
-	else if ( %duration == "" || %duration == "0" ) 
-		return ( "0" );
-	%hr = String::lpad( floor( %duration / 3600 ), 2, "0" );
-	%duration = ( %duration % 3600 );
-	%min = String::lpad( floor( %duration / 60 ), 2, "0" ); 
-	%duration = ( %duration % 60 );
-	%sec = String::lpad( floor( %duration ), 2, "0" );
-	%time = %min @ ":" @ %sec;
-	if ( %hr > 0 )
-		%time = %hr @ ":" @ %time;
-	return boldnum( %time );
+    if ( %duration == "-" )
+        return ( %duration );
+    else if ( %duration == "" || %duration == "0" ) 
+        return ( "0" );
+    %hr = String::lpad( floor( %duration / 3600 ), 2, "0" );
+    %duration = ( %duration % 3600 );
+    %min = String::lpad( floor( %duration / 60 ), 2, "0" ); 
+    %duration = ( %duration % 60 );
+    %sec = String::lpad( floor( %duration ), 2, "0" );
+    %time = %min @ ":" @ %sec;
+    if ( %hr > 0 )
+        %time = %hr @ ":" @ %time;
+    return boldnum( %time );
 }
 
 function xmlizename( %name ) {
-	%name = String::Replace( %name, "&", "&amp;" );
-	%name = String::Replace( %name, "<", "&lt;" );
-	%name = String::Replace( %name, ">", "&gt;" );
-	return ( %name );
+    %name = String::Replace( %name, "&", "&amp;" );
+    %name = String::Replace( %name, "<", "&lt;" );
+    %name = String::Replace( %name, ">", "&gt;" );
+    return ( %name );
 }
 
 function filenameizename( %name ) {
-	%name = String::Replace( %name, "&", "_" );
-	%name = String::Replace( %name, "<", "_" );
-	%name = String::Replace( %name, ">", "_" );
-	%name = String::Replace( %name, "|", "_" );
-	%name = String::Replace( %name, "*", "_" );
-	%name = String::Replace( %name, "$", "_" );
-	%name = String::Replace( %name, ":", "_" );
-	%name = String::Replace( %name, "?", "_" );
-	%name = String::Replace( %name, "\\", "_" );
-	%name = String::Replace( %name, "/", "_" );
-	%name = String::Replace( %name, "@", "_" );
-	%name = String::Replace( %name, "#", "_" );
-	%name = String::Replace( %name, "%", "_" );
-	%name = String::Replace( %name, "^", "_" );
-	%name = String::Replace( %name, "~", "_" );
-	return ( %name );
+    %name = String::Replace( %name, "&", "_" );
+    %name = String::Replace( %name, "<", "_" );
+    %name = String::Replace( %name, ">", "_" );
+    %name = String::Replace( %name, "|", "_" );
+    %name = String::Replace( %name, "*", "_" );
+    %name = String::Replace( %name, "$", "_" );
+    %name = String::Replace( %name, ":", "_" );
+    %name = String::Replace( %name, "?", "_" );
+    %name = String::Replace( %name, "\\", "_" );
+    %name = String::Replace( %name, "/", "_" );
+    %name = String::Replace( %name, "@", "_" );
+    %name = String::Replace( %name, "#", "_" );
+    %name = String::Replace( %name, "%", "_" );
+    %name = String::Replace( %name, "^", "_" );
+    %name = String::Replace( %name, "~", "_" );
+    return ( %name );
 }
 
 // %1 = title
@@ -90,57 +90,57 @@ $Exporter::footer = "</div>\n</body>\n</html>";
 
 // %1 = date, %2 = map, %3 = length, %4 = score(0), %5 = score(1)
 $Exporter::body = 
-	"<body>\n" @
-		div( "spacer" ) @
-		div( "content",
-			//span( "label", "Date: " ) @ span( "value", "%1" ) @ br() @
-			span( "label", "Map: " ) @ span( "value", "%2" ) @ br() @
-			span( "label", "Length: " ) @ span( "value", "%3" ) @ br() @
-			span( "label", bold( "BE" ) @ " # Caps: " ) @ span( "value", "%4" ) @ br() @
-			span( "label", bold( "DS" ) @ " # Caps: " ) @ span( "value", "%5" )
-		) @
-		"<div class=\"body\">\n";
+    "<body>\n" @
+        div( "spacer" ) @
+        div( "content",
+            //span( "label", "Date: " ) @ span( "value", "%1" ) @ br() @
+            span( "label", "Map: " ) @ span( "value", "%2" ) @ br() @
+            span( "label", "Length: " ) @ span( "value", "%3" ) @ br() @
+            span( "label", bold( "BE" ) @ " # Caps: " ) @ span( "value", "%4" ) @ br() @
+            span( "label", bold( "DS" ) @ " # Caps: " ) @ span( "value", "%5" )
+        ) @
+        "<div class=\"body\">\n";
 
 $Exporter::timeheader =
-	tr( "", "<th colspan=\"5\">Time Info</th>" ) @
-	tr( "title",
-		td( "t", "Name" ) @
-		td( "c", "OBS" ) @
-		td( "c", "BE" ) @	
-		td( "c", "DS" ) @
-		td( "c", "Flag" )
-	);
+    tr( "", "<th colspan=\"5\">Time Info</th>" ) @
+    tr( "title",
+        td( "t", "Name" ) @
+        td( "c", "OBS" ) @
+        td( "c", "BE" ) @   
+        td( "c", "DS" ) @
+        td( "c", "Flag" )
+    );
 
 $Exporter::timefooter = "</table>" @ div( "spacer" );
 
 $Exporter::statsheader =
-	tr( "", "<th colspan=\"18\">Match Stats (v3.3 Server)</th>" ) @
-	tr( "title",
-		td( "t", "Player" ) @
-		td( "", " Rating " ) @
-		td( "", " K/D " ) @
+    tr( "", "<th colspan=\"18\">Match Stats (v3.3 Server)</th>" ) @
+    tr( "title",
+        td( "t", "Player" ) @
+        td( "", " Rating " ) @
+        td( "", " K/D " ) @
         td( "", " Suic " ) @
         td( "", " TKs " ) @
-		td( "", " Disc " ) @
-		td( "", " Nade " ) @
-		td( "", " Chain " ) @
+        td( "", " Disc " ) @
+        td( "", " Nade " ) @
+        td( "", " Chain " ) @
         td( "", " MAs " ) @
         td( "", " BBs " ) @
-		td( "", " CKills " ) @
+        td( "", " CKills " ) @
         td( "", " Ret " ) @
-		td( "", " Grabs " ) @
-		td( "", " Pckups " ) @
-		td( "", " Drops " ) @
-		td( "", " Assists " ) @
-		td( "", " Caps " ) @
+        td( "", " Grabs " ) @
+        td( "", " Pckups " ) @
+        td( "", " Drops " ) @
+        td( "", " Assists " ) @
+        td( "", " Caps " ) @
         td( "", " Flag Time " )
-	);
+    );
 
 $Exporter::funstatsheader =
-	tr( "", "<th colspan=\"13\">Fun Stats</th>" ) @
-	tr( "title",
-		td( "t", "Player" ) @
-		td( "", " Dmg Rating " ) @
+    tr( "", "<th colspan=\"13\">Fun Stats</th>" ) @
+    tr( "title",
+        td( "t", "Player" ) @
+        td( "", " Dmg Rating " ) @
         td( "", " Damage " ) @
         td( "", " Tm.Dmg " ) @
         td( "", " MA Nades " ) @
@@ -152,7 +152,7 @@ $Exporter::funstatsheader =
         td( "", " Clunks " ) @
         td( "", " Craters " ) @
         td( "", " NJs " )
-	);
+    );
 
 $Exporter::statsfooter = "</table>" @ div( "spacer" );
 
@@ -162,11 +162,11 @@ $Exporter::display["Home"] = "Enemy Flag Home";
 $Exporter::display["Field"] = "Enemy Flag Field";
 
 function Exporter::ExportTimeRow( %class, %team, %name ) {
-	if ( String::len( %name ) > 16 )
-		%dispname = $Exporter::display[ String::trim( %name ) ];
-	else
-		%dispname = xmlizename( %name );
-	
+    if ( String::len( %name ) > 16 )
+        %dispname = $Exporter::display[ String::trim( %name ) ];
+    else
+        %dispname = xmlizename( %name );
+    
     if ( (%name == $Marker::Home) || (%name == $Marker::Field) ) {
 
         html::emit(
@@ -195,22 +195,22 @@ function Exporter::ExportTimeRow( %class, %team, %name ) {
 }
 
 function Exporter::ExportTime() {
-	//html::emit( "<table class=\"time\">\n" );
+    //html::emit( "<table class=\"time\">\n" );
     html::emit( "<table class=\"stats\">\n" );
-	html::emit( $Exporter::timeheader );
+    html::emit( $Exporter::timeheader );
 
-	for ( %team = 0; %team <= 1; %team++ ) {
-		Stack::Reset( "teamlist" @ %team );
+    for ( %team = 0; %team <= 1; %team++ ) {
+        Stack::Reset( "teamlist" @ %team );
 
-		for ( %i = 0; %i < Stack::Count( "teamlist" @ %team ); %i++ ) {
-			%name = Stack::GetNext( "teamlist" @ %team );
-			Exporter::ExportTimeRow( alttag(), %team, %name );
-		}
+        for ( %i = 0; %i < Stack::Count( "teamlist" @ %team ); %i++ ) {
+            %name = Stack::GetNext( "teamlist" @ %team );
+            Exporter::ExportTimeRow( alttag(), %team, %name );
+        }
 
-		Exporter::ExportTimeRow( alttag(), %team, $Marker::Home );
-		Exporter::ExportTimeRow( alttag(), %team, $Marker::Field );
+        Exporter::ExportTimeRow( alttag(), %team, $Marker::Home );
+        Exporter::ExportTimeRow( alttag(), %team, $Marker::Field );
         
-		html::emit( tr( "l", "<td class=\"l\" colspan=\"5\"></td>" ) );
+        html::emit( tr( "l", "<td class=\"l\" colspan=\"5\"></td>" ) );
         
         if ($Exporter::Outcome == 0) {
             
@@ -227,15 +227,15 @@ function Exporter::ExportTime() {
             Exporter::ExportTimeRow( "loser", %team, Marker::Team( %team ) );
         }
 
-		html::emit( tr( "l", "<td class=\"l\" colspan=\"5\"></td>" ) );
-	}
-	
-	html::emit( $Exporter::timefooter );
+        html::emit( tr( "l", "<td class=\"l\" colspan=\"5\"></td>" ) );
+    }
+    
+    html::emit( $Exporter::timefooter );
 }
 
 function Exporter::KillDeathPair( %name, %type ) {
-	if ( %type == "" )
-		return sprintf( "%1/%2", boldnum( $Collector::Kills[ %name ] ), boldnum( $Collector::Deaths[ %name ] ) );
+    if ( %type == "" )
+        return sprintf( "%1/%2", boldnum( $Collector::Kills[ %name ] ), boldnum( $Collector::Deaths[ %name ] ) );
     else if(%type == "MidAirDisc")
         return sprintf( "%1/%2", boldnum( $Collector::MAGiven[ %name ] ), boldnum( $Collector::MATaken[ %name ] ) );
     else if(%type == "BodyBlock")
@@ -244,12 +244,12 @@ function Exporter::KillDeathPair( %name, %type ) {
         return sprintf( "%1/%2", boldnum( floor(($Collector::DamageOut[ %name ]/10)) ), boldnum( floor(($Collector::DamageIn[ %name ]/10)) ) );
     else if(%type == "TeamDamageDealt")
         return sprintf( "%1/%2", boldnum( floor(($Collector::TeamDamageOut[ %name ]/10)) ), boldnum( floor(($Collector::TeamDamageIn[ %name ]/10)) ) );
-	else
-		return sprintf( "%1/%2", boldnum( $Collector::Kills[ %name, %type ] ), boldnum( $Collector::Deaths[ %name, %type ] ) );
+    else
+        return sprintf( "%1/%2", boldnum( $Collector::Kills[ %name, %type ] ), boldnum( $Collector::Deaths[ %name, %type ] ) );
 }
 
 function Exporter::ExportStatsRow( %class, %name ) {
-	//%dispname = ( String::len( %name ) > 16 ) ? String::trim( %name ) @ " Totals" : xmlizename( %name );
+    //%dispname = ( String::len( %name ) > 16 ) ? String::trim( %name ) @ " Totals" : xmlizename( %name );
     
     if (String::len( %name ) > 16) {
        %dispname = String::trim( %name ) @ " Totals";
@@ -257,63 +257,63 @@ function Exporter::ExportStatsRow( %class, %name ) {
     else {
        %dispname = xmlizename( %name );
     }
-	
+    
     if (%class == "total" || %class == "winner" || %class == "loser") {
         
         html::emit(
-		tr( %class,
-			td( "t", %dispname ) @
-			td( "", boldnum( $Collector::Score[ %name ] ) ) @
-			td( "", Exporter::KillDeathPair( %name ) ) @
+        tr( %class,
+            td( "t", %dispname ) @
+            td( "", boldnum( $Collector::Score[ %name ] ) ) @
+            td( "", Exporter::KillDeathPair( %name ) ) @
             td( "", boldnum( $Collector::Suicides[ %name ] ) ) @
             td( "", sprintf( "%1/%2", boldnum( $Collector::TeamKills[ %name ] ), boldnum( $Collector::TeamDeaths[ %name ] ) ) ) @
             td( "", Exporter::KillDeathPair( %name, "Disc" ) ) @
             td( "", Exporter::KillDeathPair( %name, "Explosive" ) ) @
-			td( "", Exporter::KillDeathPair( %name, "Chaingun" ) ) @
+            td( "", Exporter::KillDeathPair( %name, "Chaingun" ) ) @
             td( "", Exporter::KillDeathPair( %name, "MidAirDisc" ) ) @
             td( "", Exporter::KillDeathPair( %name, "BodyBlock" ) ) @
-			td( "", boldnum( $Collector::CarrierKills[ %name ] ) ) @
+            td( "", boldnum( $Collector::CarrierKills[ %name ] ) ) @
             td( "", boldnum( ($Collector::Returns[ %name ] + $Collector::StandoffReturns[ %name ]) ) ) @
-			td( "", boldnum( $Collector::Grabs[ %name ] ) ) @
-			td( "", boldnum( $Collector::Pickups[ %name ] ) ) @
-			td( "", boldnum( $Collector::Drops[ %name ] ) ) @
-			td( "", boldnum( $Collector::Assists[ %name ] ) ) @
-			td( "cap", boldnum( $Collector::Caps[ %name ] ) ) @
+            td( "", boldnum( $Collector::Grabs[ %name ] ) ) @
+            td( "", boldnum( $Collector::Pickups[ %name ] ) ) @
+            td( "", boldnum( $Collector::Drops[ %name ] ) ) @
+            td( "", boldnum( $Collector::Assists[ %name ] ) ) @
+            td( "cap", boldnum( $Collector::Caps[ %name ] ) ) @
             td( "", boldtime( $Collector::TotalFlagTime[ %name ] ) )
-		)
+        )
         );
         
     }
     else {
         
         html::emit(
-		tr( %class,
-			td( "t", %dispname ) @
-			td( "", boldnum( $Collector::Score[ %name ] ) ) @
-			td( "", Exporter::KillDeathPair( %name ) ) @
+        tr( %class,
+            td( "t", %dispname ) @
+            td( "", boldnum( $Collector::Score[ %name ] ) ) @
+            td( "", Exporter::KillDeathPair( %name ) ) @
             td( "", boldnum( $Collector::Suicides[ %name ] ) ) @
             td( "", sprintf( "%1/%2", boldnum( $Collector::TeamKills[ %name ] ), boldnum( $Collector::TeamDeaths[ %name ] ) ) ) @
             td( "", Exporter::KillDeathPair( %name, "Disc" ) ) @
             td( "", Exporter::KillDeathPair( %name, "Explosive" ) ) @
-			td( "", Exporter::KillDeathPair( %name, "Chaingun" ) ) @
+            td( "", Exporter::KillDeathPair( %name, "Chaingun" ) ) @
             td( "", Exporter::KillDeathPair( %name, "MidAirDisc" ) ) @
             td( "", Exporter::KillDeathPair( %name, "BodyBlock" ) ) @
-			td( "", boldnum( $Collector::CarrierKills[ %name ] ) ) @
+            td( "", boldnum( $Collector::CarrierKills[ %name ] ) ) @
             td( "", boldnum( ($Collector::Returns[ %name ] + $Collector::StandoffReturns[ %name ]) ) ) @
-			td( "", boldnum( $Collector::Grabs[ %name ] ) ) @
-			td( "", boldnum( $Collector::Pickups[ %name ] ) ) @
-			td( "", boldnum( $Collector::Drops[ %name ] ) ) @
-			td( "", boldnum( $Collector::Assists[ %name ] ) ) @
-			td( "", boldnum( $Collector::Caps[ %name ] ) ) @
+            td( "", boldnum( $Collector::Grabs[ %name ] ) ) @
+            td( "", boldnum( $Collector::Pickups[ %name ] ) ) @
+            td( "", boldnum( $Collector::Drops[ %name ] ) ) @
+            td( "", boldnum( $Collector::Assists[ %name ] ) ) @
+            td( "", boldnum( $Collector::Caps[ %name ] ) ) @
             td( "", boldtime( $Collector::TotalFlagTime[ %name ] ) )
-		)
+        )
         );
         
     }
 }
 
 function Exporter::ExportFunStatsRow( %class, %name ) {
-	//%dispname = ( String::len( %name ) > 16 ) ? String::trim( %name ) @ " Totals" : xmlizename( %name );
+    //%dispname = ( String::len( %name ) > 16 ) ? String::trim( %name ) @ " Totals" : xmlizename( %name );
     if (String::len( %name ) > 16) {
        %dispname = String::trim( %name ) @ " Totals";
     }
@@ -321,13 +321,13 @@ function Exporter::ExportFunStatsRow( %class, %name ) {
        %dispname = xmlizename( %name );
     }
     $Collector::DamageRating[ %name ] = ( floor($Collector::DamageOut[ %name ]/10) - floor($Collector::TeamDamageOut[ %name ]/10) );
-	
-	html::emit(
-		tr( %class,
-			td( "t", %dispname ) @
+    
+    html::emit(
+        tr( %class,
+            td( "t", %dispname ) @
             td( "", boldnum( $Collector::DamageRating[ %name ] ) ) @
-			td( "", Exporter::KillDeathPair( %name, "DamageDealt" ) ) @
-			td( "", Exporter::KillDeathPair( %name, "TeamDamageDealt" ) ) @
+            td( "", Exporter::KillDeathPair( %name, "DamageDealt" ) ) @
+            td( "", Exporter::KillDeathPair( %name, "TeamDamageDealt" ) ) @
             td( "", boldnum( $Collector::MANades[ %name ] ) ) @
             td( "", boldnum( $Collector::MidAirCK[ %name ] ) ) @
             td( "", boldnum( $Collector::ClutchReturns[ %name ] ) ) @
@@ -337,8 +337,8 @@ function Exporter::ExportFunStatsRow( %class, %name ) {
             td( "", boldnum( $Collector::Clunks[ %name ] ) ) @
             td( "", boldnum( $Collector::Craters[ %name ] ) ) @
             td( "", boldnum( $Collector::NadeJumps[ %name ] ) )
-		)
-	);
+        )
+    );
 }
 
 function Exporter::ResetTotals(%teamname)
@@ -454,17 +454,17 @@ function Exporter::FinalScore() {
 }
 
 function Exporter::ExportStats() {
-	html::emit( "<table class=\"stats\">\n" );
-	html::emit( $Exporter::statsheader );
+    html::emit( "<table class=\"stats\">\n" );
+    html::emit( $Exporter::statsheader );
     
     $Exporter::Outcome = Exporter::FinalScore();
 
-	for ( %team = 0; %team <= 1; %team++ ) {
+    for ( %team = 0; %team <= 1; %team++ ) {
 
         %teamname = Marker::Team( %team + 2 );
-		Stack::Reset( "teamlist" @ %team );
+        Stack::Reset( "teamlist" @ %team );
         
-		for ( %j = 0; %j < Stack::Count( "teamlist" @ %team ); %j++ ) {
+        for ( %j = 0; %j < Stack::Count( "teamlist" @ %team ); %j++ ) {
             
             %name = Stack::GetNext( "teamlist" @ %team );
             Exporter::ExportStatsRow( alttag(), %name );
@@ -489,20 +489,20 @@ function Exporter::ExportStats() {
 
         html::emit( tr( "", "<td class=\"l\" colspan=\"18\"></td>" ) );
 
-	}
+    }
 
-	html::emit( $Exporter::statsfooter );
+    html::emit( $Exporter::statsfooter );
 }
 
 function Exporter::ExportFunStats() {
-	html::emit( "<table class=\"stats\">\n" );
-	html::emit( $Exporter::funstatsheader );
+    html::emit( "<table class=\"stats\">\n" );
+    html::emit( $Exporter::funstatsheader );
 
-	for ( %team = 0; %team <= 1; %team++ ) {
+    for ( %team = 0; %team <= 1; %team++ ) {
         
         %teamname = Marker::Team( %team + 2 );
-		Stack::Reset( "teamlist" @ %team );
-		for ( %j = 0; %j < Stack::Count( "teamlist" @ %team ); %j++ ) {
+        Stack::Reset( "teamlist" @ %team );
+        for ( %j = 0; %j < Stack::Count( "teamlist" @ %team ); %j++ ) {
             
             %name = Stack::GetNext( "teamlist" @ %team );
             Exporter::ExportFunStatsRow( alttag(), %name );
@@ -526,53 +526,53 @@ function Exporter::ExportFunStats() {
         }
         
         html::emit( tr( "", "<td class=\"l\" colspan=\"13\"></td>" ) );
-	}
+    }
 
-	html::emit( $Exporter::statsfooter );
+    html::emit( $Exporter::statsfooter );
 }
 
 function Exporter::ExportMap( %name ) {
-	echo( "EXPORTING " @ %name );
-	
-	%obj = newobject( "FileWriterDummy", FearGuiFormattedText, 0, 0, 0, 0 );
-	flushExportText();
+    
+    if(!$StatsExport::Enabled) { return; }
+    
+    echo( "EXPORTING " @ %name );
+    
+    %obj = newobject( "FileWriterDummy", FearGuiFormattedText, 0, 0, 0, 0 );
+    flushExportText();
 
-	%playername = filenameizename( %name );
-
-	timestamp::array();
-	%displaydate = sprintf( "%1-%2-%3 %4:%5:%6", $Time["yr"], $Time["mo"], $Time["dy"], $Time["hr"], $Time["mn"], $Time["sc"] );
-	
-	%suffix = "am";
-	if ( $Time["hr"] > 12 ) {
-		$Time["hr"] = String::lpad( $Time["hr"] - 12, 2, "0" );
-		%suffix = "pm";
-	}
-	%filedate = sprintf( "%1-%2-%3_%4%5%6", $Time["yr"], $Time["mo"], $Time["dy"], $Time["hr"], $Time["mn"], %suffix );
-	
-	html::emitf( $Exporter::header, "Andrew's Map Stats" );
+    timestamp::array();
+    %displaydate = sprintf( "%1-%2-%3 %4:%5:%6", $Time["yr"], $Time["mo"], $Time["dy"], $Time["hr"], $Time["mn"], $Time["sc"] );
+    
+    %suffix = "am";
+    if ( $Time["hr"] > 12 ) {
+        $Time["hr"] = String::lpad( $Time["hr"] - 12, 2, "0" );
+        %suffix = "pm";
+    }
+    //%filedate = sprintf( "%1-%2-%3_%4%5%6", $Time["yr"], $Time["mo"], $Time["dy"], $Time["hr"], $Time["mn"], %suffix );
+    
+    html::emitf( $Exporter::header, "Andrew's Map Stats" );
     
     html::emitf(
     $Exporter::body,
-	%displaydate,
-	$Collector::MissionName,
-	boldtime( $Collector::Duration ),
+    %displaydate,
+    $Collector::MissionName,
+    boldtime( $Collector::Duration ),
     boldnum( $Collector::Caps[Marker::Team(0)] ),
-	boldnum( $Collector::Caps[Marker::Team(1)] )
+    boldnum( $Collector::Caps[Marker::Team(1)] )
     );
     
-	//Exporter::ExportTime();
-	Exporter::ExportStats();
+    //Exporter::ExportTime();
+    Exporter::ExportStats();
     Exporter::ExportFunStats();
-	
-	html::emit( $Exporter::footer );
+    
+    html::emit( $Exporter::footer );
     
     //random output will be 0-999
     %randomInt = floor(getRandom() * (1000 - 0.1));
     echo("GAMEID " @ %randomInt);
-	
-	exportObjectToScript( "FileWriterDummy", "temp\\collector" @ %randomInt @ ".html", true );
+    exportObjectToScript( "FileWriterDummy", "temp\\collector" @ %randomInt @ ".html", true );
     //export( "$Collector*", "temp/collector" @ %randomInt @ ".cs" );
-	deleteObject( nameToID("FileWriterDummy") );
-	flushExportText();
 
+    deleteObject( nameToID("FileWriterDummy") );
+    flushExportText();
 }
