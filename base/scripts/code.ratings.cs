@@ -12,7 +12,7 @@ $OldRatings[ "TeamKill" ] = -5;
 $OldRatings[ "CarrierKill" ] = 45;
 $OldRatings[ "Grab" ] = 10;
 $OldRatings[ "Pickup" ] = 10;
-$OldRatings[ "Drops" ] = -5;
+$OldRatings[ "Drops" ] = 0;
 $OldRatings[ "Return" ] = 10;
 $OldRatings[ "StandoffReturn" ] = 25;
 $OldRatings[ "Assist" ] = 125;
@@ -53,13 +53,13 @@ $Stats::Rating["MidAirLong"] = 0;
 $Stats::Rating["MidAirLongCatch"] = 0;
 
 function OldRatings::scoreEvent( %cl, %event ) {
-	if ( String::findSubStr( %event, "Death" ) != -1 ) {
-		if ( %event != "MortarDeath" )
-			%event = "Death";
-	}
-	%value = $OldRatings[ %event ];
-	if ( %value == "" )
-		%value = 0;
+    if ( String::findSubStr( %event, "Death" ) != -1 ) {
+        if ( %event != "MortarDeath" )
+            %event = "Death";
+    }
+    %value = $OldRatings[ %event ];
+    if ( %value == "" )
+        %value = 0;
 
     Collector::onClientScoreAdd( %cl, %value );
     ClientEvents::onClientScoreChange( %cl, %value, 1 );
