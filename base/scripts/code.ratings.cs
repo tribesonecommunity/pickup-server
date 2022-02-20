@@ -62,5 +62,4 @@ function OldRatings::scoreEvent( %cl, %event ) {
         %value = 0;
 
     Collector::onClientScoreAdd( %cl, %value );
-    ClientEvents::onClientScoreChange( %cl, %value, 1 );
 }
