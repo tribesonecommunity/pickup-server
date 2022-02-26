@@ -74,6 +74,22 @@ function Server::refreshData()
 function Server::onClientConnect(%clientId)
 {
   banlist::add(client::getTransportAddress(%clientId), 5);
+  
+  //Kick players who attempt to use the same name but with different casing
+  //This prevents conflict with the way stats collects data by player name
+  //%clientJoinName = client::getName(%clientId);
+  //for(%cl = Client::getFirst(); %cl != -1; %cl = Client::getNext(%cl)) {
+      
+      //if(%clientId == %cl) {
+          //continue;
+      //}
+      
+      //%playerName = client::getName(%cl);
+      //if(String::ICompare(%clientJoinName, %playerName) == 0) {
+          //kick(%clientId, "Similar name detected. Get a different name.");
+          //banlist::add(client::getTransportAddress(%clientId), 10);
+      //}
+  //}
 
   if(string::findSubStr(client::getName(%clientId), ".bmp>") != "-1" || client::getName(%clientId) == "" || string::findSubStr(client::getName(%clientId), "<R") != "-1" || string::findSubStr(client::getName(%clientId), "<L") != "-1" || string::findSubStr(client::getName(%clientId), "<S") != "-1")
   {
@@ -175,6 +191,13 @@ function Server::onClientDisconnect(%clientId)
     {
         playNextAnim(%player);
         Player::kill(%player);
+    }
+    
+    //remove any cameras from player if in a pause
+    if ($freezedata::camId[%clientId]) {
+        removeFromSet(MissionCleanup,$freezedata::camId[%clientId]);
+        deleteObject($freezedata::camId[%clientId]);
+        $freezedata::camId[%clientId] = "";
     }
 
     Client::setControlObject(%clientId, -1);
