@@ -193,11 +193,15 @@ function Server::onClientDisconnect(%clientId)
         Player::kill(%player);
     }
     
-    //remove any cameras from player if in a pause
+    //remove any cameras from player if in a pause - also remove the body
     if ($freezedata::camId[%clientId]) {
         removeFromSet(MissionCleanup,$freezedata::camId[%clientId]);
         deleteObject($freezedata::camId[%clientId]);
         $freezedata::camId[%clientId] = "";
+        
+        removeFromSet(MissionCleanup,$freezedata::realobj[%clientId]);
+        deleteObject($freezedata::realobj[%clientId]);
+        $freezedata::realobj[%clientId] = "";
     }
 
     Client::setControlObject(%clientId, -1);
