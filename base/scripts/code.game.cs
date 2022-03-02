@@ -89,8 +89,6 @@ function Time::getSeconds(%simTime)
 
 function Game::pickRandomSpawn(%team)
 {
-    
-    
    %group = nameToID("MissionGroup/Teams/team" @ %team @ "/DropPoints/Random");
    %count = Group::objectCount(%group);
    if(!%count)
@@ -911,6 +909,11 @@ function Game::NextHalf()
       $FlagIsDropped[%i] = false;
       $freeze::FlagClient[%i] = 0;
       $freeze::OOB[%i] = false;
+      
+      //let clients know flag has returned (flush stack)
+      zadmin::ActiveMessage::All(FlagReturned, %i, 0);
+      //flush stack server
+      Stats::FlagReturned(%i, 0);
     }
 
     // Just to change the time on client HUDs
