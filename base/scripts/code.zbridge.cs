@@ -140,7 +140,7 @@ function Stats::KillTrak( %killer, %victim, %weapon ) {
         
         $zadmin::PlayerDeadTime[ %victim ] = getSimTime();
         
-        %floorDead = floor(zadmin::PlayerDeadTime[ %victim ]);
+        %floorDead = floor($zadmin::PlayerDeadTime[ %victim ]);
         %floorDrop = floor($zadmin::FlagDropTime[ %victim ]);
         %floorMADisc = floor($zadmin::PlayerMATime[ %victim ]);
         %floorMANade = floor($zadmin::PlayerMANadeTime[ %victim ]);
