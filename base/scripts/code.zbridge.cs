@@ -81,15 +81,12 @@ function Stats::FlagReturned( %teamid, %cl ) {
     if ( %cl ) {
         if ( ( getSimTime() - $zadmin::FlagOffStand[%teamid] ) > 90 ) {
             OldRatings::scoreEvent( %cl, "StandoffReturn" );
-            //Event::Trigger( eventFlagStandoffReturn, %teamid, %cl );
             Collector::onFlagStandoffReturn( %teamid, %cl );
         }
         OldRatings::scoreEvent( %cl, "Return" );
     }
     $zadmin::Flag[%teamid] = $Marker::Home;
     L::Clear( "zadminflag" @ %teamid );
-    //Event::Trigger( eventFlagReturn, %teamid, %cl );
-    //Event::Trigger( eventFlagUpdate, %cl );
     Collector::onFlagReturn( %teamid, %cl );
 }
 
@@ -98,21 +95,17 @@ function Stats::FlagCaptured( %teamid, %cl ) {
     $zadmin::FlagOffStand[%teamid] = getSimTime();
     %tag = "zadminflag" @ %teamid;
     %count = L::Reset( %tag );
-    %name = Client::getName( %cl );
     for ( %i = 0; %i < %count; %i++ ) {
         %assistercl = L::GetNext( %tag );
         if ( Client::getName( %assistercl ) != $zadmin::lastName[ %assistercl ] )
             continue;
         if ( %assistercl != %cl ) {
             OldRatings::scoreEvent( %assistercl, "Assist" );
-            //Event::Trigger( eventFlagAssist, %assistercl );
             Collector::onFlagAssist( %assistercl );
         }
     }
     L::Clear( %tag );
     OldRatings::scoreEvent( %cl, "Cap" );
-    //Event::Trigger(eventFlagCap, %teamid, %cl);
-    //Event::Trigger( eventFlagUpdate, %cl );
     Collector::onFlagCap( %teamid, %cl );
 }
 
@@ -147,18 +140,24 @@ function Stats::KillTrak( %killer, %victim, %weapon ) {
         
         $zadmin::PlayerDeadTime[ %victim ] = getSimTime();
         
-        if ( ( $zadmin::PlayerDeadTime[ %victim ] - $zadmin::FlagDropTime[ %victim ] ) < 1.5 ) {
+        %floorDead = floor(zadmin::PlayerDeadTime[ %victim ]);
+        %floorDrop = floor($zadmin::FlagDropTime[ %victim ]);
+        %floorMADisc = floor($zadmin::PlayerMATime[ %victim ]);
+        %floorMANade = floor($zadmin::PlayerMANadeTime[ %victim ]);
+        
+        if ( ( %floorDead - %floorDrop ) < 1 ) {
+            
             OldRatings::scoreEvent( %killer, "CarrierKill" );
-            //Event::Trigger( eventFlagCarrierKill, %killer );
             Collector::onFlagCarrierKill( %killer );
             
             //Mid-air CK
-            if ( ( $zadmin::PlayerDeadTime[ %victim ] - $zadmin::PlayerMATime[ %victim ] )  < 1.5) {
-                //Event::Trigger( eventMidAirCK, %killer );
+            if ( ( %floorDead - %floorMADisc ) < 1 ) {
+                
                 Collector::onMidAirCK( %killer );
+                
             }
-            else if ( ( $zadmin::PlayerDeadTime[ %victim ] - $zadmin::PlayerMANadeTime[ %victim ] )  < 1.5) {
-                //Event::Trigger( eventMidAirCK, %killer );
+            else if ( ( %floorDead - %floorMANade ) < 1 ) {
+
                 Collector::onMidAirCK( %killer );
             }
             else {}
@@ -169,14 +168,11 @@ function Stats::KillTrak( %killer, %victim, %weapon ) {
 function Stats::MidAirDisc( %shooter, %victim, %time ) {
     
     $zadmin::PlayerMATime[ %victim ] = getSimTime();
-    //Event::Trigger( eventMidAirDisc, %shooter, %victim );
-    
     Collector::onMidAirDisc( %shooter, %victim );
 }
 
 function Stats::MidAirNade( %shooter, %victim ) {
     
     $zadmin::PlayerMANadeTime[ %victim ] = getSimTime();
-    //Event::Trigger( eventMidAirNade, %shooter );
     Collector::onMidAirNade( %shooter );
 }
