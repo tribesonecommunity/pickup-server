@@ -2,7 +2,14 @@ $Marker::Player = "playerteam";
 $Marker::Flag = "statflag";
 
 function Collector::Clear() {
+    
+    $zadmin::Flag[0] = $Marker::Home;
+    $zadmin::Flag[1] = $Marker::Home;
+    $zadmin::FlagOffStand[0] = getSimTime();
+    $zadmin::FlagOffStand[1] = getSimTime();
+    
     deleteVariables( "$Collector*" );
+    
     stack::clear( "playerlist" );
     TimeC::Clear( $Marker::Flag );
     TimeC::Clear( $Marker::Player );
@@ -48,7 +55,7 @@ function Collector::ResetAll(%name) {
     $Collector::Clunks[%name] = 0;
     $Collector::timeflag[ 0, %name ] = 0;
     $Collector::timeflag[ 1, %name ] = 0;
-    $Collector::TotalFlagTime[ %name ] = 0;
+    $Collector::TotalFlagTime[%name] = 0;
 }
 
 function Collector::onStart() {
@@ -285,7 +292,7 @@ function Collector::onFlagCarrierKill( %killer ) {
     %killerName = Client::getName( %killer );
     %killerTeam = Client::getTeam( %killer );
     $Collector::CarrierKills[ %killerName ]++;
-    $Collector::CarrierKills[Marker::Team( %killerTeam )]++;
+    $Collector::CarrierKills[ Marker::Team( %killerTeam ) ]++;
 }
 
 function Collector::onMidAirCK( %shooter ) {
@@ -305,7 +312,6 @@ function Collector::onNadeJump( %cl, %speed ) {
     
     $Collector::NadeJumps[ %name ]++; 
     $Collector::NadeJumps[Marker::Team( %team )]++;
-    
 }
 
 function Collector::onMidAirDisc( %shooter, %victim ) {

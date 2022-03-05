@@ -1,46 +1,9 @@
-//Event::Attach( eventConnectionAccepted, zadmin::onConnectionAccepted );
-
-//function Stats::ITXT( %msg ) { if ( %sv == 2048 ) Control::setValue(EnergyDisplayText, %msg); }
-
-//function Stats::ItemReceived( %cl, %item, %count) { Event::Trigger(EventItemReceived, %item, %count); }
-
 $zadmin::WeaponConversion[ "Laser Rifle" ] = "Laser";
 $zadmin::WeaponConversion[ "Chaingun" ] = "Chaingun";
 $zadmin::WeaponConversion[ "Disc Launcher" ] = "Disc";
 $zadmin::WeaponConversion[ "Explosives" ] = "Explosive";
 $zadmin::WeaponConversion[ "Elf Gun" ] = "ELF";
 $zadmin::WeaponConversion[ "Vehicle" ] = "Impact";
-
-function Stats::zAdminActiveMode( %state ) {
-    if ( %sv != 2048 )
-        return;
-    onClientMessageLegacy.detach();
-    //Event::Detach( eventServerMessage, KillTrak::Parse );
-}
-
-function zadmin::onConnectionAccepted() {
-    if ( getNetcodeVersion() <= 1 ) {
-        //echoc( $CON_GREEN, $Server::Address );
-        if ( ( String::FindSubStr($Server::Address, "LOOPBACK") == -1 ) || $PlayingDemo ) {
-            onClientMessageLegacy.attach( onClientMessage, before );
-            //Event::Attach( eventServerMessage, KillTrak::Parse );
-        }
-    } else {
-        onClientMessageLegacy.detach();
-        //Event::Detach( eventServerMessage, KillTrak::Parse );
-    }
-    
-    remoteEval(2048, zAdminActiveMode);
-    zadmin::reset();
-}
-
-function zadmin::reset() {
-    $zadmin::Flag[0] = $Marker::Home;
-    $zadmin::Flag[1] = $Marker::Home;
-    $zadmin::FlagOffStand[0] = getSimTime();
-    $zadmin::FlagOffStand[1] = getSimTime();
-    deleteVariables( "$zadmin::FlagDropTime*" );
-}
 
 function zadmin::getWeapon( %weapon ) {
     %conv = $zadmin::WeaponConversion[ %weapon ];
@@ -57,23 +20,18 @@ function Stats::FlagTaken( %teamid, %cl ) {
     if ( $zadmin::Flag[%teamid] == $Marker::Home ) {
         $zadmin::FlagOffStand[%teamid] = getSimTime();
         OldRatings::scoreEvent( %cl, "Grab" );
-        //Event::Trigger( eventFlagGrab, %teamid, %cl );
         Collector::onFlagGrab( %teamid, %cl );
     } else {
         OldRatings::scoreEvent( %cl, "Pickup" );
-        //Event::Trigger( eventFlagPickup, %teamid, %cl );
         Collector::onFlagPickup( %teamid, %cl );
     }
     $zadmin::Flag[%teamid] = %cl;   
-    //Event::Trigger( eventFlagUpdate, %cl );
 }
 
 function Stats::FlagDropped( %teamid, %cl ) {
-    $zadmin::FlagDropTime[ %cl ] = getSimTime();
+    $Collector::FlagDropTime[ %cl ] = getSimTime();
     OldRatings::scoreEvent( %cl, "Drop" );
     $zadmin::Flag[%teamid] = $Marker::Field;
-    //Event::Trigger( eventFlagDrop, %teamid, %cl );
-    //Event::Trigger( eventFlagUpdate, %cl );
     Collector::onFlagDrop( %teamid, %cl );
 }
 
@@ -115,50 +73,45 @@ function Stats::KillTrak( %killer, %victim, %weapon ) {
     %killerteam = Client::getTeam( %killer );
     
     if ( !%killer ) {
-        //Event::Trigger( eventClientDied, %victim, %weapon );
+        //do nothing
     }
     else if ( %killer == %victim ) {
         OldRatings::scoreEvent( %killer, "Suicide" );
-        //Event::Trigger( eventClientSuicided, %killer, %weapon );
         Collector::onClientSuicided( %victim, %weapon );
         
-    } else if ( %victimteam == %killerteam ) {
+    }
+    else if ( %victimteam == %killerteam ) {
         OldRatings::scoreEvent( %killer, "TeamKill" );
-        //Event::Trigger( eventClientTeamKilled, %killer, %victim, %weapon );
         Collector::onClientTeamKilled( %killer, %victim, %weapon );
+    }
+    else {
         
-    } else {
         OldRatings::scoreEvent( %killer, %weapon @ "Kill" );
         OldRatings::scoreEvent( %victim, %weapon @ "Death" );
-        
-        //Event::Trigger( eventClientKilled, %killer, %victim, %weapon );
         Collector::onClientKilled( %killer, %victim, %weapon );
         
     }
     
     if ( %killer && %victim && ( %killer != %victim ) ) {
         
-        $zadmin::PlayerDeadTime[ %victim ] = getSimTime();
-        
-        %floorDead = floor($zadmin::PlayerDeadTime[ %victim ]);
-        %floorDrop = floor($zadmin::FlagDropTime[ %victim ]);
-        %floorMADisc = floor($zadmin::PlayerMATime[ %victim ]);
-        %floorMANade = floor($zadmin::PlayerMANadeTime[ %victim ]);
-        
-        if ( ( %floorDead - %floorDrop ) < 1 ) {
+        $Collector::PlayerDeadTime[ %victim ] = getSimTime();
+
+        if ( ( $Collector::PlayerDeadTime[ %victim ] - $Collector::FlagDropTime[ %victim ] ) < 1.5 ) {
             
             OldRatings::scoreEvent( %killer, "CarrierKill" );
             Collector::onFlagCarrierKill( %killer );
-            
-            //Mid-air CK
-            if ( ( %floorDead - %floorMADisc ) < 1 ) {
+
+            //Mid-air CK - Disc
+            if ( ( $Collector::PlayerDeadTime[ %victim ] - $Collector::PlayerMATime[ %victim ] ) < 1.5 ) {
                 
                 Collector::onMidAirCK( %killer );
                 
             }
-            else if ( ( %floorDead - %floorMANade ) < 1 ) {
-
+            //Mid-air CK - Nade
+            else if ( ( $Collector::PlayerDeadTime[ %victim ] - $Collector::PlayerMANadeTime[ %victim ] ) < 1.5 ) {
+                
                 Collector::onMidAirCK( %killer );
+                
             }
             else {}
         }
@@ -167,12 +120,12 @@ function Stats::KillTrak( %killer, %victim, %weapon ) {
 
 function Stats::MidAirDisc( %shooter, %victim, %time ) {
     
-    $zadmin::PlayerMATime[ %victim ] = getSimTime();
+    $Collector::PlayerMATime[ %victim ] = getSimTime();
     Collector::onMidAirDisc( %shooter, %victim );
 }
 
 function Stats::MidAirNade( %shooter, %victim ) {
     
-    $zadmin::PlayerMANadeTime[ %victim ] = getSimTime();
+    $Collector::PlayerMANadeTime[ %victim ] = getSimTime();
     Collector::onMidAirNade( %shooter );
 }
