@@ -226,7 +226,6 @@ function Game::startMatch()
     zadmin::ActiveMessage::All(TeamScore, 1, 0);
     //
     zadmin::ActiveMessage::All(MatchStarted);
-    zadmin::reset();
     //
     zadmin::AFKDaemon();
     
@@ -905,15 +904,13 @@ function Game::NextHalf()
     Game::SwapTeams();
     
     for (%i = 0; %i < getNumTeams(); %i++) {
+        
       Flag::ResetFlag($teamFlag[%i]);
+      
       $FlagIsDropped[%i] = false;
       $freeze::FlagClient[%i] = 0;
       $freeze::OOB[%i] = false;
       
-      //let clients know flag has returned (flush stack)
-      zadmin::ActiveMessage::All(FlagReturned, %i, 0);
-      //flush stack server
-      Stats::FlagReturned(%i, 0);
     }
 
     // Just to change the time on client HUDs
