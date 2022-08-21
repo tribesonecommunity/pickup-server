@@ -1,3 +1,10 @@
+//CTFb
+//Capture the Flag
+//LT Maps
+//CTF
+//Open Call
+//CTF+
+
 function AntiRape::AllowRape()
 {
 	if( $Server::TourneyMode )
@@ -104,10 +111,10 @@ function StaticShape::onDamage(%this,%type,%value,%pos,%vec,%mom,%object)
 			%dValue = %damageLevel + %value * %TDS;
 			%disable = GameBase::getDisabledDamage(%this);
 			if(!$Server::TourneyMode && %dValue > %disable - 0.05) {
-            if(%damageLevel > %disable - 0.05)
-               return;
-            else
-               %dValue = %disable - 0.05;
+      	if(%damageLevel > %disable - 0.05)
+        	return;
+        else
+       		%dValue = %disable - 0.05;
 			}
 		}
 	}
