@@ -1,3 +1,36 @@
+//
+// The mission list is the list of mission displayed to the players
+// and admins in the server menu, used on the client side to display
+// mission avialable on the Host Server screen, and is is also used
+// to initialize the nextMission array which controls which mission
+// to load after a mission finishes.
+//
+// function MissionList::clear();
+//
+// function MissionList::addMission(%missionName);
+//
+//    Add a mission to the current mission list.
+//    Mission information is extracted from the mission .dsc file.
+//    The mission file does not need to be in the base/missions dir.
+//
+// function MissionList::build()
+//
+//    Add any missions files that match the missions/*.dsc pattern.
+//    This will include any missions in base/misssions/* or missions
+//    in mods as long as they are in a missions subdirectory.
+//
+// function MissionList::initNextMission()
+//
+//    Initialize the nextMission array based on the current mission list.
+//    When a mission changes it references the nextMission array to determin
+//    which mission to load next.  The function initializes the array based
+//    on mission type, so missions don't cycle to a mission of a different
+//    type.
+//    The array is easy to initialize manually:
+//       $nextMission["CrissCross"] = "Raindance";
+//       $nextMission["Raindance"] = "CrissCross";
+//
+
 function MissionList::clear()
 {
    $MLIST::Count = 0;
