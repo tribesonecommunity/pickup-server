@@ -28,12 +28,17 @@ $AutoUse[ChargeGun] = True;
 $Use[Blaster] = True;
 
 $ArmorType[Male, LightArmor] = larmor;
+$ArmorType[Male, MediumArmor] = marmor;
+$ArmorType[Male, HeavyArmor] = harmor;
 $ArmorType[Female, LightArmor] = lfemale;
-
+$ArmorType[Female, MediumArmor] = mfemale;	   
+$ArmorType[Female, HeavyArmor] = harmor;
 
 $ArmorName[larmor] = LightArmor;
+$ArmorName[marmor] = MediumArmor;
+$ArmorName[harmor] = HeavyArmor;
 $ArmorName[lfemale] = LightArmor;
-
+$ArmorName[mfemale] = MediumArmor;
 
 // Amount to remove when selling or dropping ammo
 $SellAmmo[BulletAmmo] = 25;
@@ -76,7 +81,7 @@ $TeamItemMax[MotionSensorPack] = 15;
 $TeamItemMax[ScoutVehicle] = 3;
 $TeamItemMax[HAPCVehicle] = 1;
 $TeamItemMax[LAPCVehicle] = 2;
-$TeamItemMax[Beacon] = 100;
+$TeamItemMax[Beacon] = 40;
 $TeamItemMax[mineammo] = 35;
 
 // Weapon to ammo table
@@ -85,7 +90,7 @@ $WeaponAmmo[PlasmaGun] = PlasmaAmmo;
 $WeaponAmmo[Chaingun] = BulletAmmo;
 $WeaponAmmo[DiscLauncher] = DiscAmmo;
 $WeaponAmmo[GrenadeLauncher] = GrenadeAmmo;
-$WeaponAmmo[Mortar] = MortarAmmo;
+$WeaponAmmo[Mortar] = Mortar;
 $WeaponAmmo[LaserRifle] = "";
 $WeaponAmmo[EnergyRifle] = "";
 
@@ -582,11 +587,10 @@ $PrevWeapon[EnergyRifle] = LaserRifle;
 
 function remoteNextWeapon(%client)
 {
-        if(!(%client.observerMode == "" || %client.observerMode == "pregame"))
+if(!(%client.observerMode == "" || %client.observerMode == "pregame"))
 {
 		return;
 }
-
 	%client = Player::getClient(%client);
 	if( !%client || %client == -1)
 		return;
@@ -611,11 +615,10 @@ function remoteNextWeapon(%client)
 
 function remotePrevWeapon(%client)
 {
-        if(!(%client.observerMode == "" || %client.observerMode == "pregame"))
+if(!(%client.observerMode == "" || %client.observerMode == "pregame"))
 {
 		return;
 }
-
 	%client = Player::getClient(%client);
 	if( !%client || %client == -1)
 		return;
