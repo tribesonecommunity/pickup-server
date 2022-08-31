@@ -13,8 +13,8 @@ Attachment::AddAfter("Client::onKilled", "AntiScum::onKilled");
 $AntiScum::ENABLED = true;
 $AntiScum::DEBUG = false;
 $AntiScum::NON_STANDOFF_DURATION_SECONDS = 30;
-$AntiScum::STANDOFF_DURATION_SECONDS = 20;
-$AntiScum::SAFE_ZONE_RADIUS_METERS = 160;
+$AntiScum::STANDOFF_DURATION_SECONDS = 15;
+$AntiScum::SAFE_ZONE_RADIUS_METERS = 150;
 $AntiScum::TIME_DAMAGE_RATIO = 0.2;  // 20% of max HP, 5 second death
 $AntiScum::FLAG_POSITION_ENEMY_SAFE_ZONE = "ENEMY_SAFE_ZONE";
 $AntiScum::FLAG_POSITION_FRIENDLY_SAFE_ZONE = "FRIENDLY_SAFE_ZONE";
