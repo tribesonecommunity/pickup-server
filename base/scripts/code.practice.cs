@@ -53,13 +53,11 @@
                     Player::setItemCount(%player, "Flag", 0);
                     GameBase::setPosition(%flag, %flag.originalPosition);
                     Item::setVelocity(%flag, "0 0 0");
-                    GameBase::startFadeIn(%flag);
                     Item::hide(%flag, false);
                     %flag.atHome = true;
                     $freeze::FlagClient[%i] = 0;
                     $freeze::OOB[%i] = false;
                     zadmin::ActiveMessage::All(FlagReturned, %i, 0);
-                    Stats::FlagReturned(%i, 0 );
                     Client::onFlagReturn(%i, 0);
                     %flag.carrier = -1;
                     %player.carryFlag = "";
@@ -96,6 +94,7 @@
 
             Player::SetItemCount(%cl,Grenade,5);
             Player::SetItemCount(%cl,RepairKit,1);
+            Player::setItemCount(%cl,Beacon,3);
         }
         else {
             PracticeMode::disabledTraining(%cl);
