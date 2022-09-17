@@ -351,6 +351,10 @@ function ObjectiveMission::checkScoreLimit()
   %done = false;
   ObjectiveMission::refreshTeamScores();
 
+  if ($PracticeMode::TrainingMode) {
+   return;
+  }
+
   //check for capout win
   for(%i = 0; %i < getNumTeams(); %i++) {
     if($teamScore[%i] >= $teamScoreLimit){
@@ -1302,9 +1306,7 @@ function Flag::playerLeaveMissionArea(%this, %playerId)
   $freeze::OOB[%flagTeam] = false;
   
   zadmin::ActiveMessage::All(FlagReturned, %flagTeam, 0);
-  //
   Stats::FlagReturned( %flagTeam, 0 );
-  
   Client::onFlagReturn(%flagTeam, 0);
 
   %this.carrier = -1;
