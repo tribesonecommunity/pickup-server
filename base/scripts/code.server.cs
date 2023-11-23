@@ -538,9 +538,15 @@ function Server::BalancedModeTime(%toggle)
     
     if (%toggle) {
         $Server::BalancedMode = $BalanceMode::Option;
-        $Server::timeLimit = 15;
+        //tournyTime
+        $Server::timeLimit = 12;
+        
+        //$Server::timeLimit = 15;
         messageAll(1,"Balance Mode ON!~wmine_act.wav");
-        messageAll(1,"Match time limit has been adjusted to 15 minutes!");
+        //messageAll(1,"Match time limit has been adjusted to 15 minutes!");
+        
+        //tournyTime
+        messageAll(1,"Match time limit has been adjusted to 12 minutes!");
     }
     else {
         //original time limit
@@ -574,10 +580,15 @@ function Server::GameTimeBalance()
         
     }
     else if ($Server::BalancedMode == 2) {
-        $Server::timeLimit = 15;
-    
+        //tournyTime
+        $Server::timeLimit = 12;
+        
+        //$Server::timeLimit = 15;
         schedule('messageAll(1,"Balance Mode ON!~wmine_act.wav");', 1);
-        schedule('messageAll(1,"Second half time limit has been adjusted to 15 minutes!");', 1);
+        //schedule('messageAll(1,"Second half time limit has been adjusted to 15 minutes!");', 1);
+        
+        //tournyTime
+        schedule('messageAll(1,"Second half time limit has been adjusted to 12 minutes!");', 1);
     }
     else { }
     Game::UpdateTimeOnly(); 

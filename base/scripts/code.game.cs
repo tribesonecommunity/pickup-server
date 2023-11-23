@@ -644,6 +644,8 @@ function Game::onPlayerConnected(%playerId)
    %playerId.justConnected = true;
    $menuMode[%playerId] = "None";
    Game::refreshClientScore(%playerId);
+
+   // if($matchStarted) { processMenuInitialPickTeam(%playerId, -2); }
 }
 
 function Game::assignClientTeam(%playerId)
