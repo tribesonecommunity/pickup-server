@@ -302,7 +302,8 @@ function Player::onDamage(%this,%type,%value,%pos,%vec,%mom,%vertPos,%quadrant,%
     if ( (%type == $BulletDamageType) && (%teamDamageOccured == 0) ) {
         
             Client::sendMessage(%shooterClient,0,"~whit.wav");
-            zadmin::ActiveMessage::All( HitCG, %shooterClient );
+            // zadmin::ActiveMessage::All( HitCG, %shooterClient );
+	    zadmin::ActiveMessage::Single(%shooterClient, HitCG, %shooterClient);
     }
 }
 
