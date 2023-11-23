@@ -31,6 +31,7 @@ function AntiScum::reset(%team) {
   $AntiScum::flagCarrierDamageListCount[%team] = 0;
   $AntiScum::isFlagStandoff[%team] = false;
   $AntiScum::lastFlagCarrier[%team] = "";
+  $AntiScum::lastFlagDropTime[%team] = "";
   $AntiScum::lastFlagPosition[%team] = "";
 }
 
@@ -100,6 +101,7 @@ function AntiScum::NotifyTimeLeft(%cl, %timeLeft, %force) {
       $AntiScum::flagCarrierDamageListCount[%otherTeam] = 0;
       $AntiScum::currentFlagCarrier[%otherTeam] = "";
       $AntiScum::lastFlagCarrier[%otherTeam] = "";
+      $AntiScum::lastFlagDropTime[%team] = "";
     }
   }
 }
@@ -253,6 +255,7 @@ function AntiScum::onFlagDrop(%team, %cl) {
 
   $AntiScum::currentFlagCarrier[%team] = "";
   $AntiScum::lastFlagCarrier[%team] = %cl;
+  $AntiScum::lastFlagDropTime[%team] = getSimTime();
 }
 
 function AntiScum::onFlagCap(%team, %cl) {
@@ -308,8 +311,16 @@ function AntiScum::onFlagPickup(%team, %cl) {
   }
 
   if ($AntiScum::lastFlagPosition[%team] == $AntiScum::FLAG_POSITION_NEUTRAL_ZONE) {
-    AntiScum::NotifyTimeLeft(%cl, $AntiScum::flagCarrierTimeLeft[%otherTeam], true);
-    $AntiScum::flagCarrierTimeLeft[%otherTeam]--;
+    if (%cl != $AntiScum::lastFlagCarrier[%team]) {
+      AntiScum::NotifyTimeLeft(%cl, $AntiScum::flagCarrierTimeLeft[%otherTeam], true);
+      $AntiScum::flagCarrierTimeLeft[%otherTeam]--;
+    } else {
+      // If picked up by the same player, count the time on the ground
+      %currentTime = getSimTime();
+      %difference = floor(%currentTime - $AntiScum::lastFlagDropTime[%team]);
+      $AntiScum::flagCarrierTimeLeft[%otherTeam] -= %difference;
+      AntiScum::NotifyTimeLeft(%cl, $AntiScum::flagCarrierTimeLeft[%otherTeam], true);
+    }
   }
   schedule("AntiScum::CheckTime(" @ %cl @ ");", 1);
 }
@@ -360,7 +371,7 @@ function AntiScum::onKilled(%playerId, %killerId, %damageType) {
     return;
   }
   
-  //suicide occured - do not reset timer
+  //suicide occurred - do not reset timer
   if (%playerId == %killerId) {
       return;
   }
