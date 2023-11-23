@@ -1041,11 +1041,13 @@ function displayMenuChangeTimeLimit(%cl)
     
     addLine("5 minutes", 5, true, %cl);
     addLine("10 minutes", 10, true, %cl);
+    //tournyTime
+    addLine("12 minutes", 12, true, %cl);
     addLine("15 minutes", 15, true, %cl);
     addLine("20 minutes", 20, true, %cl);
     addLine("25 minutes", 25, true, %cl);
     addLine("30 minutes", 30, true, %cl);
-    addLine("45 minutes", 45, true, %cl);
+    //addLine("45 minutes", 45, true, %cl);
     addLine("60 minutes", 60, true, %cl);
     addLine("No time limit", 0, true, %cl);
 }
